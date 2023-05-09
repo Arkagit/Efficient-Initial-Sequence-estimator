@@ -4,21 +4,23 @@ library(ellipse)
 library(mcmc)
 
 # datasize
-n = 1e7
+n = 5e4
 # dimensions
 p = 5
 
 # Product vector
-phi = diag(c(0.9, 0.5, 0.1, 0.1, 0.1))
+#phi = diag(c(0.9, 0.8, 0.1, 0.1, 0.1))
 
 # Variance for Error
-rho = 0.9
+rho = 0.95
 omega = matrix(1, ncol = p, nrow = p, byrow = TRUE)
 for (k in 1:p) {
   for (l in 1:p) {
     omega[k,l] = rho^(abs(k-l))
   }
 }
+phi <- omega
+phi <- phi/max(eigen(phi)$values + .1)
 vec_omega = numeric(0)
 
 for (k in 1:p) {

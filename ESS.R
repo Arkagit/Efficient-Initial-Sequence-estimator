@@ -1,17 +1,21 @@
 source("Gen_data.R")
-n = 1e6
+n = 5e4
+reps <- 100
 # Initializing ESS
 ess_bm = numeric(0)
+ess_rbm = numeric(0)
 ess_is = numeric(0)
 ess_new = numeric(0)
 
 # Initializing time
 time_bm = numeric(0)
+time_rbm = numeric(0)
 time_is = numeric(0)
 time_new = numeric(0)
 
 
-for (j in 1:10) {
+for (j in 1:reps) {
+  print(j)
   # VAR process
   err = mvrnorm(n, mu = c(0,0,0,0,0), Sigma = omega)
   data = matrix(0, n, p) 
@@ -25,8 +29,12 @@ for (j in 1:10) {
   # Batch means ESS and time
   start <- Sys.time()
   BM = mcse.multi(data, method = "bm", r = 3)$cov
+  time_rbm[j] = Sys.time() - start
+  ess_rbm[j] = multiESS(data, method = "bm", r = 3)
+  
+  BM = mcse.multi(data, method = "bm", r = 1)$cov
   time_bm[j] = Sys.time() - start
-  ess_bm[j] = multiESS(data, method = "bm", r = 3)
+  ess_bm[j] = multiESS(data, method = "bm", r = 1)
   
   print(paste(2))
   
@@ -40,12 +48,11 @@ for (j in 1:10) {
   
   # New variance ESS and time
   start <- Sys.time()
-  BM = cov2cor(mcse.multi(data, method = "bm", r = 1)$cov)
-  sd = numeric(0)
-  for (i in 1:p) {
-    sd[i] = sqrt(initseq(data[,i])$var.pos)
-  }
-  var_est = diag(sd)%*%BM%*%diag(sd)
+  BM = mcse.multi(data, method = "bm", r = 1)$cov
+  corrMat <- cov2cor(BM)
+    
+  sds = apply(data, 2, function(l) sqrt(initseq(l)$var.pos))
+  var_est = diag(sds)%*%corrMat%*%diag(sds)
   time_new[j] = Sys.time() - start
   
   if(det(var_est) > 0){
@@ -59,6 +66,9 @@ for (j in 1:10) {
 
 # Average ESS
 mean(ess_bm); mean(ess_is); mean(ess_new)
+foo <- cbind(ess_bm, ess_rbm,  ess_is, ess_new)
+boxplot(foo)
+abline(h = n*(det(V)/det(sig))^(1/p), col = "red")
 
 # Average Time
 mean(time_bm); mean(time_is); mean(time_new)
