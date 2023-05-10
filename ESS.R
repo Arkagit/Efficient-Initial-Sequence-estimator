@@ -1,5 +1,6 @@
+setwd("/Users/arkabanerjee/Documents/GitHub/Efficient-Initial-Sequence-estimator")
 source("Gen_data.R")
-n = 5e4
+n = 1e7
 reps <- 100
 # Initializing ESS
 ess_bm = numeric(0)
@@ -17,9 +18,9 @@ time_new = numeric(0)
 for (j in 1:reps) {
   print(j)
   # VAR process
-  err = mvrnorm(n, mu = c(0,0,0,0,0), Sigma = omega)
+  err = mvrnorm(n, mu = rep(0,p), Sigma = omega)
   data = matrix(0, n, p) 
-  data[1,] = c(1,1,1,1,1)
+  data[1,] = rep(1,p)
   for (i in 2:n){ 
     data[i,] = t(phi)%*%data[i-1,] + err[i,]
   }
@@ -67,7 +68,7 @@ for (j in 1:reps) {
 # Average ESS
 mean(ess_bm); mean(ess_is); mean(ess_new)
 foo <- cbind(ess_bm, ess_rbm,  ess_is, ess_new)
-boxplot(foo)
+boxplot(foo, main = "Boxplot of estimated ESS")
 abline(h = n*(det(V)/det(sig))^(1/p), col = "red")
 
 # Average Time
