@@ -1,7 +1,7 @@
 source("Gen_data.R")
 
 # datasize
-n = 1e7
+n = 1e5
 data = data[1:n,]
 
 # Batch means estimation

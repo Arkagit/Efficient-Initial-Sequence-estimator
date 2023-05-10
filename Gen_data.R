@@ -5,7 +5,7 @@ library(mcmc)
 library(HadamardR)
 
 # datasize
-n = 1e7
+n = 1e5
 # dimensions
 p = 8
 
@@ -29,7 +29,7 @@ omega = diag(1, p)
 #  vec_omega = append(vec_omega, omega[k,])
 #}
 #vec_V = solve(diag(rep(1, p^(2))) - kronecker(phi,phi))%*%vec_omega
-#V = matrix(vec_V, nrow = p, byrow = TRUE)
+V = solve(diag(1,p) - phi%*%phi)%*%omega
 
 # Asymptotic variance
 #sig = (diag(1,p) + 2*phi%*%phi%*%solve(diag(1,p) - phi%*%phi))%*%solve(diag(1,p) - phi%*%phi)%*%omega

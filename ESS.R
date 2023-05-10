@@ -1,6 +1,7 @@
+setwd("/Users/arkabanerjee/Documents/GitHub/Efficient-Initial-Sequence-estimator")
 source("Gen_data.R")
-n = 1e7
-reps <- 100
+n = 1e5
+reps <- 1
 # Initializing ESS
 ess_bm = numeric(0)
 ess_rbm = numeric(0)
@@ -72,3 +73,4 @@ abline(h = n*(det(V)/det(sig))^(1/p), col = "red")
 
 # Average Time
 mean(time_bm); mean(time_is); mean(time_new)
+
