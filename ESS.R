@@ -1,7 +1,6 @@
-setwd("/Users/arkabanerjee/Documents/GitHub/Efficient-Initial-Sequence-estimator")
 source("Gen_data.R")
 n = 1e5
-reps <- 1
+reps <- 100
 # Initializing ESS
 ess_bm = numeric(0)
 ess_rbm = numeric(0)
