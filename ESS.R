@@ -68,7 +68,7 @@ for (j in 1:reps) {
 mean(ess_bm); mean(ess_is); mean(ess_new)
 foo <- cbind(ess_bm, ess_rbm,  ess_is, ess_new)
 boxplot(foo, main = "Boxplot of estimated ESS")
-abline(h = n*(det(MAT(8,0.95)[[1]])/det(MAT(8,0.95)[[2]]))^(1/p), col = "red")
+abline(h = n*(det(MAT(8,0.95)[[1]])/det(MAT(8,0.95)[[2]]))^(1/dim), col = "red")
 
 # Average Time
 mean(time_bm); mean(time_is); mean(time_new)
