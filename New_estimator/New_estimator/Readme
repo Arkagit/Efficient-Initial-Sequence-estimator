@@ -1,0 +1,5 @@
+# Readme for this folder
+The "Cov_func.R" is for funtion construction of the new estimator
+The "VAR_func.R" creates functions for data generation and True sigma calculation
+"VAR_bias.R" creates functions for computing biases
+"VAR_bias_output.R" creates plots relating to biases of different estimators at different chain-length.
