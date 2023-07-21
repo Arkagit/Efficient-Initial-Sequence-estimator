@@ -4,6 +4,7 @@ library(ellipse)
 library(mcmc)
 library(HadamardR)
 
+p=8
 # Variance for Error
 omega = diag(1, p)
 

@@ -25,26 +25,35 @@ for (i in 1:p) {
 # new variance estimate
 var_est = diag(sd)%*%BM%*%diag(sd)
 
+add_legend <- function(...) {
+  opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
+              mar=c(0, 0, 0, 0), new=TRUE)
+  on.exit(par(opar))
+  plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+  legend(...)
+}
 
 # Plots for 1st and 3rd component
+b13 = BME$cov[c(1,dim), c(1,dim)]
+pl1 = ellipse(b13, centre = c(0,0), which = c(1, 2), npoints = 100)
+plot(pl1, type = "l", col = "red", main = "Confidence Ellipsoid")
+
 new_v13 = var_est[c(1,dim), c(1,dim)]
 pl3 = ellipse(new_v13, centre = c(0,0), which = c(1, 2), npoints = 100)
-plot(pl3, type = "l", col = "blue", main = "Confidence Ellipsoid",
+lines(pl3, type = "l", col = "blue", main = "Confidence Ellipsoid",
      xlab = "1st Component", ylab = paste(dim,"th Component"))
 
 ise13 = IS$cov[c(1,dim), c(1,dim)]
 pl2 = ellipse(ise13, centre = c(0,0), which = c(1, 2), npoints = 100)
-lines(pl2, type = "l", col = "green", main = "Confidence Ellipsoid")
+lines(pl2, type = "l", col = "green4", main = "Confidence Ellipsoid")
 
-b13 = BME$cov[c(1,dim), c(1,dim)]
-pl1 = ellipse(b13, centre = c(0,0), which = c(1, 2), npoints = 100)
-lines(pl1, type = "l", col = "red", main = "Confidence Ellipsoid")
 
 tr13 = (MAT(dim, rho)[[2]])[c(1,dim),c(1,dim)] 
 pl0 = ellipse(tr13, centre = c(0,0), which = c(1, 2), npoints = 100)
 lines(pl0, type = "l", col = "black", main = "Confidence Ellipsoid")
 
-legend(x = "topleft", lty = c(1,1,1,1), text.font = 0.5, 
-       col= c("blue","green", "red", "black"),text.col = "black", 
-       legend=c("New", "ISE", "Lugsail BM", "True"))
-
+add_legend(x = "topright", lty = c(1,1,1,1), text.font = 0.5, 
+       col= c("blue","green4", "red", "black"),text.col = "black",
+       horiz=F, bty='n', cex=0.8,
+       legend=c("CV" ,"ISE", "Lugsail BM", "True"))
+byrow=T
