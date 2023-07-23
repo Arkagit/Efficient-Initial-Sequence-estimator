@@ -54,6 +54,7 @@ cov.sig <- function(data){
   return(list("covariance" = covariance, "est" = colMeans(data), "stopping_lag" = lag))
 }
 
+
 # Comparison with Geyer (1992)
 #data = matrix(rnorm(2e2), nrow = 1e2)
 #initseq(data[,1])$var.pos; initseq(data[,2])$var.pos
