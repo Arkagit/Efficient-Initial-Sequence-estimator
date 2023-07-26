@@ -1,6 +1,7 @@
 library(mcmcse)
 library(Rcpp)
 
+
 # Generated Data from Vector Auto-covariance model
 var1 <- function(p = 2, phi = diag(rep(.1, p)), nsim = 1e3,  omega = diag(rep(1, p)), start = rep(0,p))
 {

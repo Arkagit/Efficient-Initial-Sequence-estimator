@@ -1,5 +1,5 @@
-source("VAR_func.R")
-source("Cov_func.R")
+source(paste(dirname(getwd()),"/VAR_func.R", sep = ""))
+source(paste(dirname(getwd()),"/Cov_func.R", sep = ""))
 set.seed(101)
 
 var_coverage <- function(N = 1e3, phi, omega, B = 1000, level = .90)

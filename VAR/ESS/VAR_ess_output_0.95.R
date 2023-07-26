@@ -1,7 +1,8 @@
 source("VAR_ess.R")
 
 p <- 10
-phi <- diag(rep(.95,p))
+rho <- 0.95
+phi <- diag(rep(rho,p))
 omega <- matrix(.9, nrow = p, ncol = p)
 diag(omega) <- 1
 omega <- omega^(abs(col(omega)-row(omega)))
@@ -16,5 +17,4 @@ subsize <- seq(5e3, 5e4, length = nloops)
 # lines(subsize, colMeans(ess_track$WBM), col = "red")
 # lines(subsize, colMeans(ess_track$LUG), col = "blue")
 # abline(h = ess_true)
-save(subsize, ess_true, ess_track, file = "ESS_data.Rdata")
-
+save(subsize, ess_true, ess_track, file = "ESS_data_0.95.Rdata")
