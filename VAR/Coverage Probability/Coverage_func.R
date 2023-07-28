@@ -3,7 +3,7 @@ source(paste(dirname(getwd()),"/Cov_func.R", sep = ""))
 library(matrixcalc)
 set.seed(101)
 
-coverage <- function(N = 1e5, phi, omega, level = .90){
+coverage <- function(N = 1e5, phi, omega, B = 1000, level = .90){
 	p <- dim(phi)[1]
 	truth <- true.sig(rep(1,p), p, omega, phi)$final.cov
 	nloops <- 50
@@ -12,10 +12,11 @@ coverage <- function(N = 1e5, phi, omega, level = .90){
 	M <- matrix(0, nrow = length(subsize), ncol = 4)
 	colnames(M) <- c("BM", "Lugsail", "ISE", "New ISE")
 	rownames(M) <- subsize
-	for(i in 1:length(subsize)){
-		print(i)
-		for (j in 1:1000) {
-			minichain = var1(p = p, phi = phi, nsim = N, omega = omega)[1:subsize[i],]
+	for(j in 1:B){
+		print(j)
+		chain = var1(p = p, phi = phi, nsim = N, omega = omega)
+        for (i in 1:length(subsize)) {
+        	minichain <- chain[1:subsize[i],]
 			bm_est = mcse.multi(minichain, r = 1, method = "bm", adjust = "FALSE")$cov
 			lug_est = mcse.multi(minichain, r = 3, method = "bm", adjust = "FALSE")$cov
 			ise_est = mcse.initseq(data.frame(minichain))$cov
