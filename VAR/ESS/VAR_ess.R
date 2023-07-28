@@ -18,6 +18,7 @@ set.seed(101)
 var_track <- function(N = 5e4, phi, omega, B = 10, level = .90)
 {
 	p <- dim(phi)[1]
+	truth <- true.sig(rep(1,p), p, omega, phi)$final.cov
 	nloops <- 50
 	subsize <- floor(seq(5e3, N, length = nloops))
 	ess_track_lug <- matrix(0, nrow = B, ncol = length(subsize))
@@ -52,19 +53,26 @@ var_track <- function(N = 5e4, phi, omega, B = 10, level = .90)
 		{
 			print(j)
 			minichain <- chain[1:subsize[j], ]
-			ess_track_bm[b, j] <- multiESS(minichain, r = 1, method = "bm", adjust = FALSE)/subsize[j]
-			ess_track_lug[b,j] <- multiESS(minichain, r = 3, method = "bm", adjust = FALSE)/subsize[j]
-			ess_track_ise[b,j] <- multiESS(minichain, covmat = mcse.initseq(minichain)$cov)/subsize[j]
-			ess_track_cc[b,j] <- multiESS(minichain, covmat = cov.sig(minichain)$covariance)/subsize[j]
+			bm_est = mcse.multi(minichain, r = 1, method = "bm", adjust = "FALSE")$cov
+			lug_est = mcse.multi(minichain, r = 3, method = "bm", adjust = "FALSE")$cov
+			ise_est = mcse.initseq(minichain)$cov
+			cc_est = cov.sig(minichain)$covariance
 
-			fro_track_bm[b, j] <- norm(mcse.multi(minichain, method = "bm", r = 1)$cov, type = "F")
-			fro_track_lug[b,j] <- norm(mcse.multi(minichain, method = "bm", r = 3)$cov, type = "F")
-			fro_track_ise[b,j] <- norm(mcse.initseq(minichain)$cov, type = "F")
-			fro_track_cc[b,j] <- norm(cov.sig(minichain)$covariance, type = "F")
+			ess_track_bm[b, j] <- multiESS(minichain, covmat = bm_est)/subsize[j]
+			ess_track_lug[b,j] <- multiESS(minichain, covmat = lug_est)/subsize[j]
+			ess_track_ise[b,j] <- multiESS(minichain, covmat = ise_est/subsize[j]
+			ess_track_cc[b,j] <- multiESS(minichain, covmat = cc_est)/subsize[j]
+
+			fro_track_bm[b, j] <- norm(bm_est, type = "F")/norm(truth, type = "F")
+			fro_track_lug[b,j] <- norm(lug_est, type = "F")/norm(truth, type = "F")
+			fro_track_ise[b,j] <- norm(ise_est, type = "F")/norm(truth, type = "F")
+			fro_track_cc[b,j] <- norm(cc_est, type = "F")/norm(truth, type = "F")
 
 		}
 	}
-	return(list("BM" = ess_track_bm, "Frob_bm" = fro_track_bm, "LUG" = ess_track_lug, "Frob_lug" = fro_track_lug, "CC" = ess_track_cc, "Frob_cc" = fro_track_cc, "ISE" = ess_track_ise, "Frob_ise" = fro_track_ise))
+	return(list("BM" = ess_track_bm, "Frob_bm" = fro_track_bm, "LUG" = ess_track_lug, 
+		"Frob_lug" = fro_track_lug, "CC" = ess_track_cc, "Frob_cc" = fro_track_cc, 
+		"ISE" = ess_track_ise, "Frob_ise" = fro_track_ise))
 }
 
 

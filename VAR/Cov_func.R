@@ -32,9 +32,9 @@ cov.sig <- function(data){
   d = rep(0,p)
   lag = rep(0,p)
   for (i in 1:p) {
-    acf_data = fastacf(data[,i], show = "FALSE", window = "rectangular", lag.max = floor(n/2))$acf
-    d[i] = Ise(acf_data)[[1]]*var(data[,i])*(length(data[,i])  - 1)/length(data[,i])
-    lag[i] = Ise(acf_data)[[2]]
+    Ise_data = Ise(fastacf(data[,i], show = "FALSE", window = "rectangular", lag.max = floor(n/2))$acf)
+    d[i] = Ise_data[[1]]*var(data[,i])*(length(data[,i]) - 1)/length(data[,i])
+    lag[i] = Ise_data[[2]]
   }
   covariance = sqrt(d) * cov2cor(mcse.multi(data, method = "bm", r = 1)$cov) * rep(sqrt(d), each = p)
   return(list("covariance" = covariance, "est" = colMeans(data), "stopping_lag" = lag))
