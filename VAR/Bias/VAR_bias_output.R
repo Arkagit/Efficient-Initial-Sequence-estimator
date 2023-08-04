@@ -1,3 +1,4 @@
+set.seed(100)
 source("VAR_bias.R")
 
 
