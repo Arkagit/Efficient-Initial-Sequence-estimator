@@ -11,7 +11,7 @@ diag(omega) <- 1
 omega <- omega^(abs(col(omega)-row(omega)))
 subsize <- c(5e3, 1e4, 5e4)
 level <- 0.95
-Out = matrix(0, nrow = 3, ncol = 4)
+Out = matrix(0, nrow = 3, ncol = 6)
 #length(colMeans(minichain))
 
 for(j in 1:B){

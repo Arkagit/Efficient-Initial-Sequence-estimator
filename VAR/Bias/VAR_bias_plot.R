@@ -13,11 +13,14 @@ add_legend <- function(...) {
 # Saving bias plots for comparing estimation methods
 pdf("plot_bias.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
-plot(sizes, b_bm, type = "b", col = "black", ylab = "Average bias on diagonals", xlab = "Chain length", ylim = c(-0.3, 0.2))
-lines(sizes, b_wbm, col = "blue", type = "b", lty = 1)
+plot(sizes, b_bm, type = "b", col = "black", ylab = "Average bias on diagonals", xlab = "Chain length",
+ ylim = c(-0.3, 0.2))
+lines(sizes, b_sve, col = "skyblue", type = "b", lty = 1)
 lines(sizes, b_cc, col = "purple", type = "b", lty = 1)
 lines(sizes, b_lug, col = "red", type = "b", lty = 1)
 lines(sizes, b_ise, col = "green", type = "b", lty = 1)
+lines(sizes, b_mls, col = "brown", type = "b", lty = 1)
 abline(h = 0, lty = 2)
-add_legend("top", inset=c(-0.3, 0), bty = "n",legend = c("BM", "Zero Lugsail", "Cov-Corr", "Over Lugsail", "ISE"), col = c("black", "blue", "purple", "red", "green"), horiz=TRUE, cex=0.75,lty = 1)
+add_legend("top", inset=c(-0.3, 0), bty = "n",legend = c("BM", "SVE", "New ISE (Geyer)", "Over Lugsail", "ISE", "New ISE (MLS)"),
+ col = c("black", "skyblue", "purple", "red", "green", "brown"), cex=0.50,lty = 1)
 dev.off()

@@ -7,8 +7,8 @@ coverage <- function(subsize, phi, omega, level = .90){
 	p <- dim(phi)[1]
 	nloops <- 50
 	qchisq_qnt <- qchisq(level, p)
-	count_mat <- matrix(0, nrow = length(subsize), ncol = 4)
-	colnames(count_mat) <- c("BM", "Lugsail", "ISE", "New ISE")
+	count_mat <- matrix(0, nrow = length(subsize), ncol = 6)
+	colnames(count_mat) <- c("BM", "Lugsail", "ISE", "New ISE (Geyer)", "SVE", "New ISE (MLS)")
 	rownames(count_mat) <- subsize
 	chain = var1(p = p, phi = phi, nsim = max(subsize), omega = omega)
 	true_mean = rep(0, p)
@@ -17,8 +17,10 @@ coverage <- function(subsize, phi, omega, level = .90){
     	minichain <- chain[1:subsize[i],]
 		bm_est = mcse.multi(minichain, r = 1, method = "bm", adjust = FALSE)$cov
 		lug_est = mcse.multi(minichain, r = 3, method = "bm", adjust = FALSE)$cov
+		sve_est = mcse.multi(minichain, r = 1, method = "tukey", adjust = FALSE)$cov
 		ise_est = mcse.initseq(data.frame(minichain))$cov
-		cc_est = cov.sig(data.frame(minichain))$covariance
+		cc_est = cov.sig(data.frame(minichain), type = "geyer")$covariance
+		mls_est = cov.sig(data.frame(minichain), type = "MomentLS")$covariance
 		chain_mean = matrix(colMeans(minichain), nrow = p)
 
 
@@ -33,6 +35,12 @@ coverage <- function(subsize, phi, omega, level = .90){
 
 		if(subsize[i]*t(chain_mean - true_mean)%*%solve(cc_est)%*%(chain_mean - true_mean) < qchisq_qnt)
 			count_mat[i,4] = count_mat[i,4] + 1
+
+		if(subsize[i]*t(chain_mean - true_mean)%*%solve(sve_est)%*%(chain_mean - true_mean) < qchisq_qnt)
+			count_mat[i,5] = count_mat[i,5] + 1
+
+		if(subsize[i]*t(chain_mean - true_mean)%*%solve(mls_est)%*%(chain_mean - true_mean) < qchisq_qnt)
+			count_mat[i,6] = count_mat[i,6] + 1
 	}
 
 	return(count_mat)

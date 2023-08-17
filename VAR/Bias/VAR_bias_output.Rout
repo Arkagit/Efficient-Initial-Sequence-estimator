@@ -17,6 +17,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
+> set.seed(100)
 > source("VAR_bias.R")
 Registered S3 methods overwritten by 'RcppEigen':
   method               from         
@@ -35,7 +36,8 @@ The following objects are masked from ‘package:RcppArmadillo’:
 > 
 > # Parameter values
 > p <- 10
-> phi <- diag(rep(.95,p))
+> rho <- 0.99
+> phi <- diag(rep(rho,p))
 > omega <- matrix(.9, nrow = p, ncol = p)
 > diag(omega) <- 1
 > omega <- omega^(abs(col(omega)-row(omega)))
@@ -268,7 +270,7 @@ There were 50 or more warnings (use warnings() to see the first 50)
 [1] 1
 [1] 100
 [1] 1
-There were 42 warnings (use warnings() to see them)
+There were 50 or more warnings (use warnings() to see the first 50)
 > var.cov1e4 <- var_coverage(N = 1e4, phi = phi, omega = omega, B = B)
 [1] 1
 [1] 1
@@ -380,13 +382,7 @@ There were 42 warnings (use warnings() to see them)
 [1] 1
 [1] 100
 [1] 1
-Warning messages:
-1: In mcse.multi(chain, r = 2) :
-  Estimated matrix not positive definite. The chain might be highly correlated or very high dimensional. Consider increasing the sample size. Using the default batch means estimator as a substitute.
-2: In mcse.multi(chain, r = 3) :
-  Estimated matrix not positive definite. The chain might be highly correlated or very high dimensional. Consider increasing the sample size. Using the default batch means estimator as a substitute.
-3: In mcse.multi(chain, r = 2) :
-  Estimated matrix not positive definite. The chain might be highly correlated or very high dimensional. Consider increasing the sample size. Using the default batch means estimator as a substitute.
+There were 50 or more warnings (use warnings() to see the first 50)
 > var.cov5e4 <- var_coverage(N = 5e4, phi = phi, omega = omega, B = B)
 [1] 1
 [1] 1
@@ -512,10 +508,11 @@ Warning messages:
 > 
 > # Memory allocation for biases for different estimation methods
 > b_bm <- numeric(length = 4)
-> b_wbm <- numeric(length = 4)
+> b_sve <- numeric(length = 4)
 > b_lug <- numeric(length = 4)
 > b_cc <- numeric(length = 4)
 > b_ise <- numeric(length = 4)
+> b_mls <- numeric(length = 4)
 > 
 > 
 > # Storing bias values for different methods at different chain lengths
@@ -524,10 +521,10 @@ Warning messages:
 > b_bm[3] <- mean(rowMeans(apply(var.cov1e4$bias_bm, 1, dum))/diag(true.var)) 
 > b_bm[4] <- mean(rowMeans(apply(var.cov5e4$bias_bm, 1, dum))/diag(true.var)) 
 > 
-> b_wbm[1] <- mean(rowMeans(apply(var.cov1e3$bias_wbm, 1, dum))/diag(true.var)) 
-> b_wbm[2] <- mean(rowMeans(apply(var.cov5e3$bias_wbm, 1, dum))/diag(true.var)) 
-> b_wbm[3] <- mean(rowMeans(apply(var.cov1e4$bias_wbm, 1, dum))/diag(true.var)) 
-> b_wbm[4] <- mean(rowMeans(apply(var.cov5e4$bias_wbm, 1, dum))/diag(true.var)) 
+> b_sve[1] <- mean(rowMeans(apply(var.cov1e3$bias_sve, 1, dum))/diag(true.var)) 
+> b_sve[2] <- mean(rowMeans(apply(var.cov5e3$bias_sve, 1, dum))/diag(true.var)) 
+> b_sve[3] <- mean(rowMeans(apply(var.cov1e4$bias_sve, 1, dum))/diag(true.var)) 
+> b_sve[4] <- mean(rowMeans(apply(var.cov5e4$bias_sve, 1, dum))/diag(true.var)) 
 > 
 > b_lug[1] <- mean(rowMeans(apply(var.cov1e3$bias_lug, 1, dum))/diag(true.var)) 
 > b_lug[2] <- mean(rowMeans(apply(var.cov5e3$bias_lug, 1, dum))/diag(true.var)) 
@@ -546,11 +543,15 @@ Warning messages:
 > b_ise[3] <- mean(rowMeans(apply(var.cov1e4$bias_ise, 1, dum))/diag(true.var)) 
 > b_ise[4] <- mean(rowMeans(apply(var.cov5e4$bias_ise, 1, dum))/diag(true.var)) 
 > 
+> b_mls[1] <- mean(rowMeans(apply(var.cov1e3$bias_mls, 1, dum))/diag(true.var)) 
+> b_mls[2] <- mean(rowMeans(apply(var.cov5e3$bias_mls, 1, dum))/diag(true.var)) 
+> b_mls[3] <- mean(rowMeans(apply(var.cov1e4$bias_mls, 1, dum))/diag(true.var)) 
+> b_mls[4] <- mean(rowMeans(apply(var.cov5e4$bias_mls, 1, dum))/diag(true.var)) 
 > 
 > 
 > # Saving bias data in Rdata file
-> save(b_bm, b_wbm, b_lug, b_cc, b_ise, file = "bias_data.Rdata")
+> save(b_bm, b_sve, b_lug, b_cc, b_ise, b_mls, file = "bias_data.Rdata")
 > 
 > proc.time()
    user  system elapsed 
- 92.341   1.388  94.736 
+373.116   9.862 383.791 

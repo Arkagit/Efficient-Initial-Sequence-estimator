@@ -4,7 +4,8 @@ source("VAR_bias.R")
 
 # Parameter values
 p <- 10
-phi <- diag(rep(.95,p))
+rho <- 0.99
+phi <- diag(rep(rho,p))
 omega <- matrix(.9, nrow = p, ncol = p)
 diag(omega) <- 1
 omega <- omega^(abs(col(omega)-row(omega)))
@@ -32,10 +33,11 @@ dum <- function(x){
 
 # Memory allocation for biases for different estimation methods
 b_bm <- numeric(length = 4)
-b_wbm <- numeric(length = 4)
+b_sve <- numeric(length = 4)
 b_lug <- numeric(length = 4)
 b_cc <- numeric(length = 4)
 b_ise <- numeric(length = 4)
+b_mls <- numeric(length = 4)
 
 
 # Storing bias values for different methods at different chain lengths
@@ -44,10 +46,10 @@ b_bm[2] <- mean(rowMeans(apply(var.cov5e3$bias_bm, 1, dum))/diag(true.var))
 b_bm[3] <- mean(rowMeans(apply(var.cov1e4$bias_bm, 1, dum))/diag(true.var)) 
 b_bm[4] <- mean(rowMeans(apply(var.cov5e4$bias_bm, 1, dum))/diag(true.var)) 
 
-b_wbm[1] <- mean(rowMeans(apply(var.cov1e3$bias_wbm, 1, dum))/diag(true.var)) 
-b_wbm[2] <- mean(rowMeans(apply(var.cov5e3$bias_wbm, 1, dum))/diag(true.var)) 
-b_wbm[3] <- mean(rowMeans(apply(var.cov1e4$bias_wbm, 1, dum))/diag(true.var)) 
-b_wbm[4] <- mean(rowMeans(apply(var.cov5e4$bias_wbm, 1, dum))/diag(true.var)) 
+b_sve[1] <- mean(rowMeans(apply(var.cov1e3$bias_sve, 1, dum))/diag(true.var)) 
+b_sve[2] <- mean(rowMeans(apply(var.cov5e3$bias_sve, 1, dum))/diag(true.var)) 
+b_sve[3] <- mean(rowMeans(apply(var.cov1e4$bias_sve, 1, dum))/diag(true.var)) 
+b_sve[4] <- mean(rowMeans(apply(var.cov5e4$bias_sve, 1, dum))/diag(true.var)) 
 
 b_lug[1] <- mean(rowMeans(apply(var.cov1e3$bias_lug, 1, dum))/diag(true.var)) 
 b_lug[2] <- mean(rowMeans(apply(var.cov5e3$bias_lug, 1, dum))/diag(true.var)) 
@@ -66,7 +68,11 @@ b_ise[2] <- mean(rowMeans(apply(var.cov5e3$bias_ise, 1, dum))/diag(true.var))
 b_ise[3] <- mean(rowMeans(apply(var.cov1e4$bias_ise, 1, dum))/diag(true.var)) 
 b_ise[4] <- mean(rowMeans(apply(var.cov5e4$bias_ise, 1, dum))/diag(true.var)) 
 
+b_mls[1] <- mean(rowMeans(apply(var.cov1e3$bias_mls, 1, dum))/diag(true.var)) 
+b_mls[2] <- mean(rowMeans(apply(var.cov5e3$bias_mls, 1, dum))/diag(true.var)) 
+b_mls[3] <- mean(rowMeans(apply(var.cov1e4$bias_mls, 1, dum))/diag(true.var)) 
+b_mls[4] <- mean(rowMeans(apply(var.cov5e4$bias_mls, 1, dum))/diag(true.var)) 
 
 
 # Saving bias data in Rdata file
-save(b_bm, b_wbm, b_lug, b_cc, b_ise, file = "bias_data.Rdata")
+save(b_bm, b_sve, b_lug, b_cc, b_ise, b_mls, file = "bias_data.Rdata")

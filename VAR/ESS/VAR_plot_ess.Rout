@@ -18,6 +18,8 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > source("VAR_ess.R")
+Skipping install of 'momentLS' from a github remote, the SHA1 (adf9bd8c) has not changed since last install.
+  Use `force = TRUE` to force installation
 Registered S3 methods overwritten by 'RcppEigen':
   method               from         
   predict.fastLm       RcppArmadillo
@@ -44,17 +46,19 @@ The following objects are masked from ‘package:RcppArmadillo’:
 > 
 > truth <- true.sig(p = p, omega = omega, phi = phi)
 > 
-> se_ess_bm <- apply(ess_track_bm, 2, sd)/sqrt(50)
-> se_ess_lug <- apply(ess_track_lug, 2, sd)/sqrt(50)
-> se_ess_ise <- apply(ess_track_ise, 2, sd)/sqrt(50)
-> se_ess_cc <- apply(ess_track_cc, 2, sd)/sqrt(50)
-> se_ess_sve <- apply(ess_track_sve, 2, sd)/sqrt(50)
+> se_ess_bm <- apply(ess_track_bm, 2, sd)/sqrt(nloops)
+> se_ess_lug <- apply(ess_track_lug, 2, sd)/sqrt(nloops)
+> se_ess_ise <- apply(ess_track_ise, 2, sd)/sqrt(nloops)
+> se_ess_cc <- apply(ess_track_cc, 2, sd)/sqrt(nloops)
+> se_ess_sve <- apply(ess_track_sve, 2, sd)/sqrt(nloops)
+> se_ess_mls <- apply(ess_track_mls, 2, sd)/sqrt(nloops)
 > 
-> se_fro_bm <- apply(fro_track_bm, 2, sd)/sqrt(50)
-> se_fro_lug <- apply(fro_track_lug, 2, sd)/sqrt(50)
-> se_fro_ise <- apply(fro_track_ise, 2, sd)/sqrt(50)
-> se_fro_cc <- apply(fro_track_cc, 2, sd)/sqrt(50)
-> se_fro_sve <- apply(fro_track_sve, 2, sd)/sqrt(50)
+> se_fro_bm <- apply(fro_track_bm, 2, sd)/sqrt(nloops)
+> se_fro_lug <- apply(fro_track_lug, 2, sd)/sqrt(nloops)
+> se_fro_ise <- apply(fro_track_ise, 2, sd)/sqrt(nloops)
+> se_fro_cc <- apply(fro_track_cc, 2, sd)/sqrt(nloops)
+> se_fro_sve <- apply(fro_track_sve, 2, sd)/sqrt(nloops)
+> se_fro_mls <- apply(fro_track_mls, 2, sd)/sqrt(nloops)
 > 
 > add_legend <- function(...) {
 +   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
@@ -90,9 +94,13 @@ The following objects are masked from ‘package:RcppArmadillo’:
 > segments(x0 = subsize, y0 = colMeans(ess_track_sve) - 1.96*se_ess_sve, 
 + 	y1 = colMeans(ess_track_sve) + 1.96*se_ess_sve, col = "skyblue")
 > 
+> lines(subsize,colMeans(ess_track_mls), col = "brown" )
+> segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
++ 	y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
+> 
 > abline(h = ess_true, lty = 2)
-> add_legend("topright", bty = "n",legend = c("BM", "CC", "Over Lugsail", "ISE", "SVE"), 
-+ 	col = c("black", "purple", "red","green", "skyblue"), lty = 1, horiz=TRUE, cex=0.7)
+> add_legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "Over Lugsail", "ISE", "SVE", "New ISE (MLS)"), 
++ 	col = c("black", "purple", "red","green", "skyblue", "brown"), lty = 1, cex=0.5)
 > dev.off()
 null device 
           1 
@@ -122,9 +130,13 @@ null device
 > segments(x0 = subsize, y0 = colMeans(fro_track_sve) - 1.96*se_fro_sve, 
 + 	y1 = colMeans(fro_track_sve) + 1.96*se_fro_sve, col = "skyblue")
 > 
+> lines(subsize,colMeans(fro_track_mls), col = "brown" )
+> segments(x0 = subsize, y0 = colMeans(fro_track_mls) - 1.96*se_fro_mls, 
++ 	y1 = colMeans(fro_track_mls) + 1.96*se_fro_mls, col = "brown")
+> 
 > abline(h = 1, lty = 2)
-> add_legend("topright", bty = "n",legend = c("BM", "CC", "Over Lugsail", "ISE", "SVE"), 
-+ 	col = c("black", "purple", "red","green", "skyblue"), lty = 1, horiz=TRUE, cex=0.7)
+> add_legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "Over Lugsail", "ISE", "SVE", "New ISE (MLS)"), 
++ 	col = c("black", "purple", "red","green", "skyblue", "brown"), lty = 1, cex=0.5)
 > dev.off()
 null device 
           1 
@@ -140,4 +152,4 @@ null device
 > 
 > proc.time()
    user  system elapsed 
-  1.479   0.246   2.450 
+  1.729   0.183   2.943 
