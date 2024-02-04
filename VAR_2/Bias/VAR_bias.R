@@ -1,0 +1,85 @@
+########### Sourcing all function and 
+source("../VAR_func.R")
+source("../Cov_func.R")
+source("../Asymp_var.R")
+
+library(mcmcse)
+# Function for calculating bias of a particular estimator
+var_coverage <- function(N = 1e3, phi, omega, B = 100, level = .90){
+  p <- dim(phi)[1]
+  
+  large.coverage <- matrix(0, nrow = B, ncol = 6)
+  volume <- matrix(0, nrow = B, ncol = 6)
+  bias_bm <- matrix(0, nrow = B, ncol = p^2)
+  bias_sve <- matrix(0, nrow = B, ncol = p^2)
+  #bias_lug <- matrix(0, nrow = B, ncol = p^2)
+  bias_cc <- matrix(0, nrow = B, ncol = p^2)
+  bias_ise <- matrix(0, nrow = B, ncol = p^2)
+  bias_mls <- matrix(0, nrow = B, ncol = p^2)  
+  
+  truth.var <- true.sig.gen(p = p, omega = omega, phi = phi)$final.cov
+  
+  for(b in 1:B){
+    #if(b %% 10 ==0) print(b)
+    chain <- var1(p = p, phi = phi, nsim = N, omega = omega)
+
+    beta.mean <- colMeans(chain)
+    
+    foo <- mcse.multi(chain, r = 1, method = "bm")
+    bn <- foo$size
+    bm <- foo$cov
+    
+    sve <- mcse.multi(chain, r = 1, method = "tukey")$cov
+    #lug3 <- mcse.multi(chain, r = 3, method = "bm")$cov
+    cc <- cov.sig(chain)$covariance
+    ise <- mcse.initseq(chain)$cov
+    mls <- cov.sig(chain, type = "MomentLS")$covariance
+    
+    
+    volume[b,1] <- det(truth.var)^(1/p)
+    volume[b,2] <- det(sve)^(1/p)
+    #volume[b,3] <- det(lug3)^(1/p)
+    volume[b,3] <- det(cc)^(1/p)
+    volume[b,4] <- det(ise)^(1/p)
+    volume[b,5] <- det(bm)^(1/p)
+    volume[b,6] <- det(mls)^(1/p)
+    
+
+    bias_bm[b,] <- as.numeric(bm - truth.var)
+    bias_sve[b,] <- as.numeric(sve - truth.var)
+    #bias_lug[b,] <- as.numeric(lug3 - truth.var)
+    bias_cc[b,] <- as.numeric(cc - truth.var)
+    bias_ise[b,] <- as.numeric(ise - truth.var)
+    bias_mls[b,] <- as.numeric(mls - truth.var)
+    
+    large.crit <- qchisq(level, df = p)/N
+    
+    truth <- rep(0,p)
+    tester <- t(beta.mean - truth) %*% qr.solve(truth.var) %*% (beta.mean - truth)
+    if(tester < large.crit) large.coverage[b,1] <- 1
+    
+    tester <- t(beta.mean - truth) %*% qr.solve(sve) %*% (beta.mean - truth)
+    if(tester < large.crit) large.coverage[b,2] <- 1
+    
+    #tester <- t(beta.mean - truth) %*% qr.solve(lug3) %*% (beta.mean - truth)
+    #if(tester < large.crit) large.coverage[b,3] <- 1
+    
+    tester <- t(beta.mean - truth) %*% qr.solve(cc) %*% (beta.mean - truth)
+    if(tester < large.crit) large.coverage[b,3] <- 1
+
+    tester <- t(beta.mean - truth) %*% qr.solve(ise) %*% (beta.mean - truth)
+    if(tester < large.crit) large.coverage[b,4] <- 1
+    
+    tester <- t(beta.mean - truth) %*% qr.solve(bm) %*% (beta.mean - truth)
+    if(tester < large.crit) large.coverage[b,5] <- 1
+
+    tester <- t(beta.mean - truth) %*% qr.solve(mls) %*% (beta.mean - truth)
+    if(tester < large.crit) large.coverage[b,6] <- 1
+
+  }
+  colnames(large.coverage) <- c("Truth", "SVE", "New ISE (Geyer)", "ISE","BM", "New ISE (MLS)")
+  colnames(volume) <- c("Truth", "SVE", "New ISE (Geyer)","ISE", "BM", "New ISE (MLS)")
+  return(list("large" = large.coverage, "determinant" = volume, 
+              "bias_bm" = bias_bm, "bias_sve" = bias_sve, 
+              "bias_cc" = bias_cc, "bias_ise" = bias_ise, "bias_mls" = bias_mls))
+}

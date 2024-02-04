@@ -1,0 +1,198 @@
+
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> set.seed(111)
+> library(mcmcse)
+> library(foreach)
+> library(doParallel)
+Loading required package: iterators
+Loading required package: parallel
+> 
+> source("../Asymp_var.R")
+
+Attaching package: ‘HadamardR’
+
+The following object is masked from ‘package:iterators’:
+
+    nextElem
+
+> source("../VAR_func.R")
+> source("../Cov_func.R")
+Registered S3 methods overwritten by 'RcppEigen':
+  method               from         
+  predict.fastLm       RcppArmadillo
+  print.fastLm         RcppArmadillo
+  summary.fastLm       RcppArmadillo
+  print.summary.fastLm RcppArmadillo
+
+Attaching package: ‘RcppEigen’
+
+The following objects are masked from ‘package:RcppArmadillo’:
+
+    fastLm, fastLmPure
+
+> #library(matrixcalc)
+> N = seq(1e5, 1e6, length.out = 10)
+> repet = 1e2
+> 
+> bm_time = rep(0, length(N))
+> ise_time = rep(0, length(N))
+> sve_time = rep(0, length(N))
+> cc_time = rep(0, length(N))
+> mls_time = rep(0, length(N))
+> 
+> Table = list()
+> 
+> parallel::detectCores()
+[1] 64
+> n.cores <- parallel::detectCores() - 1
+> doParallel::registerDoParallel(cores = n.cores)
+> 
+> 
+> 
+> Table = foreach(i = 1:repet, .packages = c("mcmcse"))%dopar%{
++ 	print(i)
++   	chain <- var1(p = p, phi = phi, nsim = max(N), omega = omega)
++ 	combine = list()
++ 
++ 	for(j in 1:length(N)){
++ 		minichain = chain[1:N[j],]
++ 			
++ 		bm_time[j] = system.time(mcse.multi(minichain, r = 1, method = "bm", adjust = FALSE)$cov)[3]
++ 		
++ 		ise_time[j] = system.time(mcse.initseq(minichain)$cov)[3]
++ 		
++ 		sve_time[j] = system.time(mcse.multi(minichain, r = 1,method = "tukey", adjust = FALSE)$cov)[3]
++ 		
++ 		cc_time[j] = system.time(cov.sig(minichain, type = "geyer")$covariance)[3]
++ 
++ 		mls_time[j] = system.time(cov.sig(minichain, type = "MomentLS")$covariance)[3]
++ 		
++ 	}
++ 
++ 	comb = list(bm_time, ise_time, sve_time, cc_time, mls_time)
++ 
++ 	comb
++ }
+[1] 1
+[1][1] 2 3
+
+[1] 4
+[1] 5
+[1] 6
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+[1] 11
+[1] 12
+[1] 13
+[1] 14
+[1] 15
+[1] 16
+[1] 17
+[1] 18
+[1] 19
+[1] 20
+[1] 21
+[1] 22
+[1] 23
+[1] 24
+[1] 25
+[1] 26
+[1] 27
+[1] 28
+[1] 29
+[1] 30
+[1] 31
+[1] 32
+[1] 33
+[1] 34
+[1] 35
+[1] 36
+[1] 37
+[1] 38
+[1] 39
+[1] 40
+[1] 41
+[1] 42
+[1] 43
+[1] 44
+[1] 45
+[1] 46
+[1] 47
+[1] 48
+[1] 49
+[1] 50
+[1] 51
+[1] 52
+[1] 53
+[1] 54
+[1] 55
+[1] 56
+[1] 57
+[1] 58
+[1] 59
+[1] 60
+[1] 61
+[1] 62
+[1] 63
+[1] 90
+[1] 79
+[1] 88
+[1] 64
+[1] 66
+[1] 95
+[1] 86
+[1] 97
+[1] 93
+[1] 73
+[1] 68
+[1] 74
+[1] 99
+[1] 67
+[1] 80
+[1] 98
+[1] 94
+[1] 72
+[1] 70
+[1] 82
+[1] 76
+[1] 65
+[1] 92
+[1] 78
+[1] 75
+[1] 69
+[1] 71
+[1] 84
+[1] 83
+[1] 87
+[1] 81
+[1] 89
+[1] 85
+[1] 91
+[1] 96
+[1] 100
+[1] 77
+> 
+> save(Table, N, repet, file = "Time_d.Rdata")
+> 
+> proc.time()
+      user     system    elapsed 
+120847.980   1666.553   2720.555 

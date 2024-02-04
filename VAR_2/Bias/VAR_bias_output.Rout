@@ -1,0 +1,103 @@
+
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> set.seed(100)
+> ########## Sourcing fiiles
+> source("VAR_bias.R")
+Registered S3 methods overwritten by 'RcppEigen':
+  method               from         
+  predict.fastLm       RcppArmadillo
+  print.fastLm         RcppArmadillo
+  summary.fastLm       RcppArmadillo
+  print.summary.fastLm RcppArmadillo
+
+Attaching package: ‘RcppEigen’
+
+The following objects are masked from ‘package:RcppArmadillo’:
+
+    fastLm, fastLmPure
+
+> 
+> ######### Calling libraries
+> library(mcmcse)
+> library(foreach)
+> library(doParallel)
+Loading required package: iterators
+
+Attaching package: ‘iterators’
+
+The following object is masked from ‘package:HadamardR’:
+
+    nextElem
+
+Loading required package: parallel
+> 
+> ### True Covariance Matrix
+> true.var <- true.sig.gen(p = p, omega = omega, phi = phi)$final.cov
+> 
+> # Number of replications
+> B <- 1000
+> 
+> dum <- function(x){
++   dum1 <- function(y)
++   {
++     foo <- matrix(y, ncol = p, nrow = p, byrow = TRUE)
++     return(diag(foo))
++   }
++   rtn <- dum1(x)
++   return(rtn)  #matrix(x[1,], ncol = 5, nrow = 5, byrow = TRUE)
++ }
+> 
+> # Biases at different chain-length
+> subsize = c(1e4, 5e4, 1e5, 5e5, 1e6)
+> # Initializing output list
+> BS = list()
+> 
+> # Setting up parallelizing config
+> parallel::detectCores()
+[1] 64
+> n.cores <- parallel::detectCores() - 1
+> doParallel::registerDoParallel(cores = n.cores)
+> 
+> # Parallel loop
+> BS = foreach(b = 1:length(subsize), .packages = "mcmcse")%dopar%{
++ 	var.cov = var_coverage(N = subsize[b], phi = phi, omega = omega, B = B)
++ 	print(subsize[b])
++ 	b_bm <- mean(rowMeans(apply(var.cov$bias_bm, 1, dum))/diag(true.var))
++ 	#b_lug <- mean(rowMeans(apply(var.cov$bias_lug, 1, dum))/diag(true.var)) 
++ 	b_ise <- mean(rowMeans(apply(var.cov$bias_ise, 1, dum))/diag(true.var))
++ 	b_cc <- mean(rowMeans(apply(var.cov$bias_cc, 1, dum))/diag(true.var))
++ 	b_sve <- mean(rowMeans(apply(var.cov$bias_sve, 1, dum))/diag(true.var)) 
++ 	b_mls <- mean(rowMeans(apply(var.cov$bias_mls, 1, dum))/diag(true.var))
++ 	
++ 	list(b_bm, b_ise, b_cc, b_sve, b_mls)
++ }
+[1] 10000
+[1] 50000
+[1] 1e+05
+[1] 5e+05
+[1] 1e+06
+> 
+> 
+> # Saving bias data in Rdata file
+> save(BS, subsize, file = "bias_data.Rdata")
+> 
+> proc.time()
+     user    system   elapsed 
+20426.166   625.469 35530.102 

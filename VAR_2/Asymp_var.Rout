@@ -1,0 +1,54 @@
+
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #install.packages("HadamardR")
+> library(HadamardR)
+> 
+> #rho_max = 0.5
+> 
+> p = 12
+> omega = diag(rep(1, p))
+> 
+> #for(i in 1:p){
+> #	for(j in 1:p){
+> ##	}
+> #}
+> 
+> #rho = 0.99
+> 
+> phi = (1/p)*Hadamard_Matrix(p)%*%diag(1.01^(-(1:p)))%*%t(Hadamard_Matrix(p))
+> 
+> eigen(phi)$values
+ [1] 0.9900990 0.9802960 0.9705901 0.9609803 0.9514657 0.9420452 0.9327181
+ [8] 0.9234832 0.9143398 0.9052870 0.8963237 0.8874492
+> #phi%*%omega
+> # True stationary covariance matrix
+> true.sig.gen <- function(p, omega, phi){
++   omega = as.matrix(omega)
++   phi = as.matrix(phi)
++   variance <- matrix(solve(diag(1, p^2) - kronecker(phi, phi))%*%as.numeric(omega), nrow = p, ncol = p)
++   final.cov <- solve(diag(1,p) - phi)%*%variance + variance%*%solve(diag(1,p) - t(phi)) - variance
++   return(list(final.cov = final.cov, tar.var = variance, phi = phi, omega = omega))
++ }
+> 
+> #true.sig.gen(p, omega, Phi)
+> 
+> proc.time()
+   user  system elapsed 
+  0.144   0.032   0.160 
