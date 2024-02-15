@@ -19,7 +19,7 @@ Type 'q()' to quit R.
 
 > load("bias_data.Rdata")
 > 
-> sizes <- subsize
+> sizes <- log(subsize)/log(10)
 > 
 > add_legend <- function(...) {
 +   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
@@ -36,19 +36,19 @@ Type 'q()' to quit R.
 > # Saving bias plots for comparing estimation methods
 > pdf("plot_bias_1.01.pdf", height = 6, width = 6)
 > par(mfrow = c(1,1))
-> plot(sizes, b_bm, type = "b", col = "black", ylab = "Average bias of determinants", xlab = "Chain length",
+> plot(sizes, b_bm, type = "b", col = "black", ylab = "Average bias of determinants", xlab = "Log Chain length",
 +  ylim = c(-0.45, 0.2))
 > lines(sizes, b_sve, col = "skyblue", type = "b", lty = 1)
 > lines(sizes, b_cc, col = "purple", type = "b", lty = 1)
 > lines(sizes, b_ise, col = "green", type = "b", lty = 1)
 > lines(sizes, b_mls, col = "brown", type = "b", lty = 1)
 > abline(h = 0, lty = 2)
-> add_legend("top", inset=c(-0.3, 0), bty = "n",legend = c("BM", "SVE", "New ISE (Geyer)", "New ISE (MLS)", "ISE"),
-+  col = c("black", "skyblue", "purple", "brown", "green"), cex=0.50,lty = 1)
+> add_legend("topright", bty = "n",legend = c("BM", "SVE", "New ISE (Geyer)", "New ISE (MLS)", "ISE"),
++  col = c("black", "skyblue", "purple", "brown", "green"), cex = 0.50,lty = 1)
 > dev.off()
 null device 
           1 
 > 
 > proc.time()
    user  system elapsed 
-  0.179   0.033   0.198 
+  0.165   0.049   0.197 

@@ -46,7 +46,7 @@ The following objects are masked from ‘package:RcppArmadillo’:
 > 
 > #truth <- true.sig.gen(p = p, omega = omega, phi = phi)
 > 
-> 
+> subsize = log(subsize)
 > 
 > ############ ESS and Frobenius norms of different data lengths in matrices
 > ess_track_bm = matrix(0, nrow = B, ncol = nloops)
@@ -188,4 +188,4 @@ null device
 > 
 > proc.time()
    user  system elapsed 
-  3.696   0.303   3.988 
+  3.721   0.282   3.992 

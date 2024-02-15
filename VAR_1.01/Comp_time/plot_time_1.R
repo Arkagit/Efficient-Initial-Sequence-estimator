@@ -8,6 +8,8 @@ add_legend <- function(...) {
   legend(...)
 }
 
+N = log(N)/log(10)
+
 bm_time = log(as.numeric(Table[[1]][[1]]))
 ise_time = log(as.numeric(Table[[1]][[2]]))
 sve_time = log(as.numeric(Table[[1]][[3]]))
@@ -52,7 +54,7 @@ lines(N, colMeans(mls_time), col = "brown", lty = 3)
 segments(x0 = N, y0 = colMeans(mls_time) - 1.96*se_time_mls, 
 	y1 = colMeans(mls_time) + 1.96*se_time_mls, col = "brown")
 
-abline(h = 0, lty = 2)
-legend("bottomright",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE", "MLS"),
- col = c("black", "skyblue", "purple", "green", "brown"), cex = 0.8, lty = 1, lwd = c(1,1,2,1,3))
+#abline(h = 0, lty = 2)
+add_legend("topright", bty = "n",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE", "MLS"),
+ col = c("black", "skyblue", "purple", "green", "brown"), cex = 0.5, lty = 1, lwd = c(1,1,1,1))
 dev.off()

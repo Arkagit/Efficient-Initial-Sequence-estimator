@@ -24,7 +24,7 @@ dum <- function(x){
 }
 
 # Biases at different chain-length
-subsize = c(1e4, 5e4, 1e5, 5e5, 1e6)
+subsize = c(1e4, 5e4, 1e5, 3e5, 5e5)
 # Initializing output list
 BS = list()
 

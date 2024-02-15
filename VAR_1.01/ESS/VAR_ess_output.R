@@ -14,7 +14,7 @@ source("../Asymp_var.R")
 N <- 5e5
 nloops <- 50
 subsize <- floor(seq(1e4, N, length = nloops))
-B <- 10
+B <- 100
 truth <- true.sig.gen(p = p, omega = omega, phi = phi)
 ess_true <- (det(truth$tar.var)/det(truth$final.cov))^(1/p)
 

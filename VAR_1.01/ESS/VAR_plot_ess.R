@@ -14,7 +14,7 @@ source("../Asymp_var.R")
 
 #truth <- true.sig.gen(p = p, omega = omega, phi = phi)
 
-
+subsize = log(subsize)/log(10)
 
 ############ ESS and Frobenius norms of different data lengths in matrices
 ess_track_bm = matrix(0, nrow = B, ncol = nloops)
@@ -78,7 +78,7 @@ add_legend <- function(...) {
 pdf("plot_ess_1.01.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(ess_track_bm), ylim = c(0.02, 0.04),
-	type = 'l', xlab = "Time", ylab = expression(paste(hat(ESS)/n)))
+	type = 'l', xlab = "log chain length", ylab = expression(paste(hat(ESS)/n)))
 segments(x0 = subsize, y0 = colMeans(ess_track_bm) - 1.96*se_ess_bm, 
 	y1 = colMeans(ess_track_bm) + 1.96*se_ess_bm)
 
@@ -111,7 +111,7 @@ dev.off()
 # Frobenius norm plot
 pdf("plot_frob_1.01.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
-plot(subsize, colMeans(fro_track_bm),type = 'l', xlab = "Time", ylim = c(0.5, 1.3),
+plot(subsize, colMeans(fro_track_bm),type = 'l', xlab = "log chain length", ylim = c(0.5, 1.3),
 	ylab = "Frobenius Norm")
 segments(x0 = subsize, y0 = colMeans(fro_track_bm) - 1.96*se_fro_bm, 
 	y1 = colMeans(fro_track_bm) + 1.96*se_fro_bm)

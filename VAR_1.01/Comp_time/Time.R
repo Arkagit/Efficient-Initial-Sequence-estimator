@@ -7,7 +7,7 @@ source("../Asymp_var.R")
 source("../VAR_func.R")
 source("../Cov_func.R")
 #library(matrixcalc)
-N = seq(1e5, 1e6, length.out = 10)
+N = seq(1e5, 5e5, length.out = 20)
 repet = 1e2
 
 bm_time = rep(0, length(N))

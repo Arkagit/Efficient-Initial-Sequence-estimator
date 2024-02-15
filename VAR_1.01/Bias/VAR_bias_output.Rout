@@ -65,7 +65,7 @@ Loading required package: parallel
 + }
 > 
 > # Biases at different chain-length
-> subsize = c(1e4, 5e4, 1e5, 5e5, 1e6)
+> subsize = c(1e4, 5e4, 1e5, 3e5, 5e5)
 > # Initializing output list
 > BS = list()
 > 
@@ -91,13 +91,13 @@ Loading required package: parallel
 [1] 10000
 [1] 50000
 [1] 1e+05
+[1] 3e+05
 [1] 5e+05
-[1] 1e+06
 > 
 > 
 > # Saving bias data in Rdata file
 > save(BS, subsize, file = "bias_data.Rdata")
 > 
 > proc.time()
-      user     system    elapsed 
- 68979.658    883.871 125737.689 
+    user   system  elapsed 
+44753.16   400.78 53918.54 
