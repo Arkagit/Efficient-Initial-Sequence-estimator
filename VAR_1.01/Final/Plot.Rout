@@ -1,0 +1,494 @@
+
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ############################################################
+> ############################################################ Coverage vs Comp Time
+> source("../VAR_func.R")
+> source("../Asymp_var.R")
+> 
+> load("dat_matices.Rdata")
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> truth <- true.sig.gen(p = p, omega = omega, phi = phi)
+> 
+> nloops = length(subsize)
+> 
+> 
+> chart = matrix(0, nrow = length(subsize), ncol = 5)
+> time = matrix(0, nrow = length(subsize), ncol = 5)
+> 
+> time_track_bm = matrix(0, nrow = B, ncol = nloops)
+> time_track_ise = matrix(0, nrow = B, ncol = nloops)
+> time_track_cc = matrix(0, nrow = B, ncol = nloops)
+> time_track_sve = matrix(0, nrow = B, ncol = nloops)
+> time_track_mls = matrix(0, nrow = B, ncol = nloops)
+> 
+> se_time_bm <- numeric(length(subsize))
+> se_time_ise <- numeric(length(subsize))
+> se_time_cc <- numeric(length(subsize))
+> se_time_sve <- numeric(length(subsize))
+> se_time_mls <- numeric(length(subsize))
+> 
+> for(i in 1:B){
++   chart = chart + (cover[[i]]$count_mat)/B
++   time = time + log(cover[[i]]$Time)/(log(10)*B)
++   for(j in 1:length(subsize)){
++     time_track_bm[i,j] = log(cover[[i]]$Time[j,1])/log(10)
++     time_track_ise[i,j] = log(cover[[i]]$Time[j,2])/log(10)
++     time_track_cc[i,j] = log(cover[[i]]$Time[j,3])/log(10)
++     time_track_sve[i,j] = log(cover[[i]]$Time[j,4])/log(10)
++     time_track_mls[i,j] = log(cover[[i]]$Time[j,5])/log(10)
++   }
++ }
+> 
+> se_time_bm <- apply(time_track_bm, 2, sd)/sqrt(B)
+> se_time_ise <- apply(time_track_ise, 2, sd)/sqrt(B)
+> se_time_cc <- apply(time_track_cc, 2, sd)/sqrt(B)
+> se_time_sve <- apply(time_track_sve, 2, sd)/sqrt(B)
+> se_time_mls <- apply(time_track_mls, 2, sd)/sqrt(B)
+> chart;time
+         BM   ISE New ISE (Geyer)   SVE New ISE (MLS)
+5000  0.458 0.634           0.709 0.555         0.630
+8000  0.600 0.739           0.853 0.693         0.778
+10000 0.659 0.780           0.875 0.741         0.823
+30000 0.843 0.890           0.950 0.878         0.934
+50000 0.876 0.910           0.955 0.896         0.937
+80000 0.896 0.931           0.966 0.925         0.956
+1e+05 0.902 0.932           0.958 0.924         0.952
+3e+05 0.918 0.937           0.961 0.928         0.952
+5e+05 0.931 0.942           0.970 0.943         0.960
+            [,1]       [,2]       [,3]        [,4]      [,5]
+ [1,] -1.9474971 -0.6676251 -1.4871350 -1.65956915 0.1696500
+ [2,] -1.8944210 -0.3791321 -1.3636715 -1.52968437 0.1849911
+ [3,] -1.8303763 -0.2438283 -1.2944619 -1.44146736 0.1929136
+ [4,] -1.4601156  0.4132074 -0.8375229 -0.99803699 0.2784984
+ [5,] -1.2723141  0.7068012 -0.5863052 -0.73325412 0.3572809
+ [6,] -1.1981912  0.9647164 -0.3757944 -0.56017463 0.4565563
+ [7,] -1.1588191  1.0864789 -0.2563490 -0.49288323 0.5197631
+ [8,] -0.8778704  1.3199003  0.4131826  0.07963393 1.0097562
+ [9,] -0.6508767  0.4210604  0.6657391  0.38329203 1.2614642
+> 
+> 
+> 
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> #time = log(time)/ log(10)
+> 
+> pdf("coverage_time1.pdf", height = 6, width = 8)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> plot(chart[,1], time[,1], xlim = c(0.43, 1), ylim = c(-2, 2),type = 'b', xlab = "Coverage",
++ 	ylab = "log(Time)", pch = 1:dim(time)[1])
+> lines(chart[,2], time[,2],type = 'b', col = "green", pch = 1:dim(time)[1])
+> lines(chart[,3], time[,3],type = 'b', col = "purple", pch = 1:dim(time)[1])
+> lines(chart[,4], time[,4],type = 'b', col = "skyblue", pch = 1:dim(time)[1])
+> lines(chart[,5], time[,5],type = 'b', col = "brown", pch = 1:dim(time)[1])
+> add_legend("topright", bty = "n", legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "New ISE (MLS)"), 
++ 	col = c("black", "purple", "green", "skyblue", "brown"), lty = 1, cex=0.65)
+> add_legend("topleft", legend = subsize,
++        lwd = 1, cex = 0.6, col = "black", pch = 1:(dim(time)[1]))
+> dev.off()
+null device 
+          1 
+> 
+> ############################################################
+> ############################################################ ESS Plot
+> source("../VAR_func.R")
+> source("../Asymp_var.R")
+> 
+> load("dat_matices.Rdata")
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> ess_true <- (det(true.sig.gen(p = p, omega = omega, phi = phi)$tar.var)/det(true.sig.gen(p = p, omega = omega, phi = phi)$final.cov))^(1/p)
+> ess_true
+[1] 0.02630116
+> nloops = length(subsize)
+> 
+> ess_track_bm = matrix(0, nrow = B, ncol = nloops)
+> ess_track_ise = matrix(0, nrow = B, ncol = nloops)
+> ess_track_cc = matrix(0, nrow = B, ncol = nloops)
+> ess_track_sve = matrix(0, nrow = B, ncol = nloops)
+> ess_track_mls = matrix(0, nrow = B, ncol = nloops)
+> 
+> se_ess_bm <- numeric(length(subsize))
+> se_ess_ise <- numeric(length(subsize))
+> se_ess_cc <- numeric(length(subsize))
+> se_ess_sve <- numeric(length(subsize))
+> se_ess_mls <- numeric(length(subsize))
+> 
+> for(i in 1:B){
++   for(j in 1:nloops){
++     ess_track_bm[i,j] = cover[[i]]$ESS[[5*(j-1) + 1]]/subsize[j]
++     ess_track_ise[i,j] = cover[[i]]$ESS[[5*(j-1) + 2]]/subsize[j]
++     ess_track_cc[i,j] = cover[[i]]$ESS[[5*(j-1) + 3]]/subsize[j]
++     ess_track_sve[i,j] = cover[[i]]$ESS[[5*(j-1) + 4]]/subsize[j]
++     ess_track_mls[i,j] = cover[[i]]$ESS[[5*(j-1) + 5]]/subsize[j]
++   }
++ }
+> 
+> se_bias_bm <- apply(ess_track_bm, 2, sd)/sqrt(B)
+> se_bias_ise <- apply(ess_track_ise, 2, sd)/sqrt(B)
+> se_bias_cc <- apply(ess_track_cc, 2, sd)/sqrt(B)
+> se_bias_sve <- apply(ess_track_sve, 2, sd)/sqrt(B)
+> se_bias_mls <- apply(ess_track_mls, 2, sd)/sqrt(B)
+> 
+> subsize = log(subsize)/log(10)
+> 
+> 
+> pdf("ess.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> plot(subsize, colMeans(ess_track_bm), type = "l", xlab = "Log chain length",
++    ylim = c(0.020, 0.040), ylab = "ESS/n")
+> segments(x0 = subsize, y0 = colMeans(ess_track_bm) - 1.96*se_ess_bm, 
++   y1 = colMeans(ess_track_bm) + 1.96*se_ess_bm)
+> 
+> lines(subsize, colMeans(ess_track_ise), col = "green")
+> segments(x0 = subsize, y0 = colMeans(ess_track_ise) - 1.96*se_ess_ise, 
++   y1 = colMeans(ess_track_ise) + 1.96*se_ess_bm, col = "green")
+> 
+> lines(subsize, colMeans(ess_track_cc), col = "purple")
+> segments(x0 = subsize, y0 = colMeans(ess_track_cc) - 1.96*se_ess_cc, 
++   y1 = colMeans(ess_track_cc) + 1.96*se_ess_cc, col = "purple")
+> 
+> lines(subsize, colMeans(ess_track_sve), col = "skyblue")
+> segments(x0 = subsize, y0 = colMeans(ess_track_sve) - 1.96*se_ess_sve, 
++   y1 = colMeans(ess_track_sve) + 1.96*se_ess_sve, col = "skyblue")
+> 
+> lines(subsize, colMeans(ess_track_mls), col = "brown")
+> segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
++   y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
+> abline(h = ess_true, lty = 2)
+> legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "New ISE (MLS)", "True"), 
++   col = c("black", "purple", "green", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.55)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> ############################################################
+> ############################################################ Frobenius Norm Plot
+> source("../VAR_func.R")
+> source("../Asymp_var.R")
+> 
+> load("dat_matices.Rdata")
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> true_norm <- norm(true.sig.gen(p = p, omega = omega, phi = phi)$final.cov, type = "F")
+> true_norm
+[1] 10623.34
+> nloops = length(subsize)
+> 
+> norm_track_bm = matrix(0, nrow = B, ncol = nloops)
+> norm_track_ise = matrix(0, nrow = B, ncol = nloops)
+> norm_track_cc = matrix(0, nrow = B, ncol = nloops)
+> norm_track_sve = matrix(0, nrow = B, ncol = nloops)
+> norm_track_mls = matrix(0, nrow = B, ncol = nloops)
+> 
+> se_norm_bm <- numeric(length(subsize))
+> se_norm_ise <- numeric(length(subsize))
+> se_norm_cc <- numeric(length(subsize))
+> se_norm_sve <- numeric(length(subsize))
+> se_norm_mls <- numeric(length(subsize))
+> 
+> for(i in 1:B){
++   for(j in 1:nloops){
++     norm_track_bm[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 1]], type = "F")
++     norm_track_ise[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 2]], type = "F")
++     norm_track_cc[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 3]], type = "F")
++     norm_track_sve[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 4]], type = "F")
++     norm_track_mls[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 5]], type = "F")
++   }
++ }
+> 
+> se_norm_bm <- apply(norm_track_bm, 2, sd)/sqrt(B)
+> se_norm_ise <- apply(norm_track_ise, 2, sd)/sqrt(B)
+> se_norm_cc <- apply(norm_track_cc, 2, sd)/sqrt(B)
+> se_norm_sve <- apply(norm_track_sve, 2, sd)/sqrt(B)
+> se_norm_mls <- apply(norm_track_mls, 2, sd)/sqrt(B)
+> 
+> subsize = log(subsize)/log(10)
+> 
+> 
+> pdf("Frobenius Norm.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Log chain length",
++   ylim = c(4000, 11000), ylab = "Frobenius norm")
+> segments(x0 = subsize, y0 = colMeans(norm_track_bm) - 1.96*se_norm_bm, 
++   y1 = colMeans(norm_track_bm) + 1.96*se_norm_bm)
+> 
+> lines(subsize, colMeans(norm_track_ise), col = "green")
+> segments(x0 = subsize, y0 = colMeans(norm_track_ise) - 1.96*se_norm_ise, 
++   y1 = colMeans(norm_track_ise) + 1.96*se_norm_bm, col = "green")
+> 
+> lines(subsize, colMeans(norm_track_cc), col = "purple")
+> segments(x0 = subsize, y0 = colMeans(norm_track_cc) - 1.96*se_norm_cc, 
++   y1 = colMeans(norm_track_cc) + 1.96*se_norm_cc, col = "purple")
+> 
+> lines(subsize, colMeans(norm_track_sve), col = "skyblue")
+> segments(x0 = subsize, y0 = colMeans(norm_track_sve) - 1.96*se_norm_sve, 
++   y1 = colMeans(norm_track_sve) + 1.96*se_norm_sve, col = "skyblue")
+> 
+> lines(subsize, colMeans(norm_track_mls), col = "brown")
+> segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
++   y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
+> abline(h = true_norm, lty = 2)
+> legend("bottomright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "New ISE (MLS)", "True"), 
++   col = c("black", "purple", "green", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.55)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> ############################################################
+> ############################################################ Eigen values sup dif Plot
+> source("../VAR_func.R")
+> source("../Asymp_var.R")
+> 
+> load("dat_matices.Rdata")
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> truth <- true.sig.gen(p = p, omega = omega, phi = phi)$final.cov
+> 
+> nloops = length(subsize)
+> 
+> bias_track_bm = matrix(0, nrow = B, ncol = nloops)
+> bias_track_ise = matrix(0, nrow = B, ncol = nloops)
+> bias_track_cc = matrix(0, nrow = B, ncol = nloops)
+> bias_track_sve = matrix(0, nrow = B, ncol = nloops)
+> bias_track_mls = matrix(0, nrow = B, ncol = nloops)
+> 
+> se_bias_bm <- numeric(length(subsize))
+> se_bias_ise <- numeric(length(subsize))
+> se_bias_cc <- numeric(length(subsize))
+> se_bias_sve <- numeric(length(subsize))
+> se_bias_mls <- numeric(length(subsize))
+> 
+> for(i in 1:B){
++   for(j in 1:length(subsize)){
++     bias_track_bm[i,j] = max(abs(eigen(cover[[i]]$estimates[[5*(j-1) + 1]])$values - eigen(truth)$value))
++     bias_track_ise[i,j] = max(abs(eigen(cover[[i]]$estimates[[5*(j-1) + 2]])$values - eigen(truth)$values))
++     bias_track_cc[i,j] = max(abs(eigen(cover[[i]]$estimates[[5*(j-1) + 3]])$values - eigen(truth)$values))
++     bias_track_sve[i,j] = max(abs(eigen(cover[[i]]$estimates[[5*(j-1) + 4]])$values - eigen(truth)$values))
++     bias_track_mls[i,j] = max(abs(eigen(cover[[i]]$estimates[[5*(j-1) + 5]])$values - eigen(truth)$values))
++   }
++ }
+> 
+> se_bias_bm <- apply(bias_track_bm, 2, sd)/sqrt(B)
+> se_bias_ise <- apply(bias_track_ise, 2, sd)/sqrt(B)
+> se_bias_cc <- apply(bias_track_cc, 2, sd)/sqrt(B)
+> se_bias_sve <- apply(bias_track_sve, 2, sd)/sqrt(B)
+> se_bias_mls <- apply(bias_track_mls, 2, sd)/sqrt(B)
+> 
+> 
+> subsize = log(subsize)/log(10)
+> 
+> 
+> pdf("abs_eigen_bias.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> plot(subsize, colMeans(bias_track_bm), type = "l", xlab = "Log chain length",
++   ylim = c(0, 6000), ylab = "Absolute max error of Eigen values")
+> segments(x0 = subsize, y0 = colMeans(bias_track_bm) - 1.96*se_bias_bm, 
++   y1 = colMeans(bias_track_bm) + 1.96*se_bias_bm)
+> 
+> lines(subsize, colMeans(bias_track_ise), col = "green")
+> segments(x0 = subsize, y0 = colMeans(bias_track_ise) - 1.96*se_bias_ise, 
++   y1 = colMeans(bias_track_ise) + 1.96*se_bias_bm, col = "green")
+> 
+> lines(subsize, colMeans(bias_track_cc), col = "purple")
+> segments(x0 = subsize, y0 = colMeans(bias_track_cc) - 1.96*se_bias_cc, 
++   y1 = colMeans(bias_track_cc) + 1.96*se_bias_cc, col = "purple")
+> 
+> lines(subsize, colMeans(bias_track_sve), col = "skyblue")
+> segments(x0 = subsize, y0 = colMeans(bias_track_sve) - 1.96*se_bias_sve, 
++   y1 = colMeans(bias_track_sve) + 1.96*se_bias_sve, col = "skyblue")
+> 
+> lines(subsize, colMeans(bias_track_mls), col = "brown")
+> segments(x0 = subsize, y0 = colMeans(bias_track_mls) - 1.96*se_bias_mls, 
++   y1 = colMeans(bias_track_mls) + 1.96*se_bias_mls, col = "brown")
+> 
+> add_legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "New ISE (MLS)"), 
++   col = c("black", "purple", "green", "skyblue", "brown"), lty = 1, cex=0.5)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> 
+> ############################################################
+> ############################################################ Computational Time Plot
+> 
+> source("../VAR_func.R")
+> source("../Asymp_var.R")
+> 
+> load("dat_matices.Rdata")
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> truth <- true.sig.gen(p = p, omega = omega, phi = phi)
+> 
+> nloops = length(subsize)
+> 
+> 
+> chart = matrix(0, nrow = length(subsize), ncol = 5)
+> time = matrix(0, nrow = length(subsize), ncol = 5)
+> 
+> time_track_bm = matrix(0, nrow = B, ncol = nloops)
+> time_track_ise = matrix(0, nrow = B, ncol = nloops)
+> time_track_cc = matrix(0, nrow = B, ncol = nloops)
+> time_track_sve = matrix(0, nrow = B, ncol = nloops)
+> time_track_mls = matrix(0, nrow = B, ncol = nloops)
+> 
+> se_time_bm <- numeric(length(subsize))
+> se_time_ise <- numeric(length(subsize))
+> se_time_cc <- numeric(length(subsize))
+> se_time_sve <- numeric(length(subsize))
+> se_time_mls <- numeric(length(subsize))
+> 
+> for(i in 1:B){
++   chart = chart + (cover[[i]]$count_mat)/B
++   time = time + log(cover[[i]]$Time)/(log(10)*B)
++   for(j in 1:length(subsize)){
++     time_track_bm[i,j] = cover[[i]]$Time[j,1]
++     time_track_ise[i,j] = cover[[i]]$Time[j,2]
++     time_track_cc[i,j] = cover[[i]]$Time[j,3]
++     time_track_sve[i,j] = cover[[i]]$Time[j,4]
++     time_track_mls[i,j] = cover[[i]]$Time[j,5]
++   }
++ }
+> 
+> se_time_bm <- apply(time_track_bm, 2, sd)/sqrt(B)
+> se_time_ise <- apply(time_track_ise, 2, sd)/sqrt(B)
+> se_time_cc <- apply(time_track_cc, 2, sd)/sqrt(B)
+> se_time_sve <- apply(time_track_sve, 2, sd)/sqrt(B)
+> se_time_mls <- apply(time_track_mls, 2, sd)/sqrt(B)
+> chart;time
+         BM   ISE New ISE (Geyer)   SVE New ISE (MLS)
+5000  0.458 0.634           0.709 0.555         0.630
+8000  0.600 0.739           0.853 0.693         0.778
+10000 0.659 0.780           0.875 0.741         0.823
+30000 0.843 0.890           0.950 0.878         0.934
+50000 0.876 0.910           0.955 0.896         0.937
+80000 0.896 0.931           0.966 0.925         0.956
+1e+05 0.902 0.932           0.958 0.924         0.952
+3e+05 0.918 0.937           0.961 0.928         0.952
+5e+05 0.931 0.942           0.970 0.943         0.960
+            [,1]       [,2]       [,3]        [,4]      [,5]
+ [1,] -1.9474971 -0.6676251 -1.4871350 -1.65956915 0.1696500
+ [2,] -1.8944210 -0.3791321 -1.3636715 -1.52968437 0.1849911
+ [3,] -1.8303763 -0.2438283 -1.2944619 -1.44146736 0.1929136
+ [4,] -1.4601156  0.4132074 -0.8375229 -0.99803699 0.2784984
+ [5,] -1.2723141  0.7068012 -0.5863052 -0.73325412 0.3572809
+ [6,] -1.1981912  0.9647164 -0.3757944 -0.56017463 0.4565563
+ [7,] -1.1588191  1.0864789 -0.2563490 -0.49288323 0.5197631
+ [8,] -0.8778704  1.3199003  0.4131826  0.07963393 1.0097562
+ [9,] -0.6508767  0.4210604  0.6657391  0.38329203 1.2614642
+> 
+> 
+> 
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> subsize = log(subsize)/log(10)
+> 
+> pdf("Computational_time.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Log chain length",
++   ylim = c(0, 40), ylab = "Computational Time")
+> segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
++   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
+> 
+> lines(subsize, colMeans(time_track_ise), col = "green")
+> segments(x0 = subsize, y0 = colMeans(time_track_ise) - 1.96*se_time_ise, 
++   y1 = colMeans(time_track_ise) + 1.96*se_time_bm, col = "green")
+> 
+> lines(subsize, colMeans(time_track_cc), col = "purple")
+> segments(x0 = subsize, y0 = colMeans(time_track_cc) - 1.96*se_time_cc, 
++   y1 = colMeans(time_track_cc) + 1.96*se_time_cc, col = "purple")
+> 
+> lines(subsize, colMeans(time_track_sve), col = "skyblue")
+> segments(x0 = subsize, y0 = colMeans(time_track_sve) - 1.96*se_time_sve, 
++   y1 = colMeans(time_track_sve) + 1.96*se_time_sve, col = "skyblue")
+> 
+> lines(subsize, colMeans(time_track_mls), col = "brown")
+> segments(x0 = subsize, y0 = colMeans(time_track_mls) - 1.96*se_time_mls, 
++   y1 = colMeans(time_track_mls) + 1.96*se_time_mls, col = "brown")
+> 
+> add_legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "New ISE (MLS)"), 
++   col = c("black", "purple", "green", "skyblue", "brown"), lty = 1, cex=0.65)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 26.371   0.273  26.632 
