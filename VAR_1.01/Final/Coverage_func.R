@@ -2,6 +2,7 @@ source("../VAR_func.R")
 source("../Cov_func.R")
 source("../Asymp_var.R")
 #library(matrixcalc)
+sourceCpp("inseq.cpp")
 
 
 coverage <- function(subsize, phi, omega, level = .90){
@@ -11,35 +12,34 @@ coverage <- function(subsize, phi, omega, level = .90){
 	count_mat <- matrix(0, nrow = length(subsize), ncol = 5)
 	colnames(count_mat) <- c("BM", "ISE", "New ISE (Geyer)", "SVE", "New ISE (MLS)")
 	rownames(count_mat) <- subsize
-	chain = var1(p = p, phi = phi, nsim = max(subsize), omega = omega)
 	true_mean = rep(0, p)
 	time = matrix(0, nrow = length(subsize), ncol = 5)
 	est = list()
 	ess = list()
+	trunc_ise = numeric(length = length(subsize))
+	chain = var1(p = p, phi = phi, nsim = max(subsize), omega = omega)
 
 	for (i in 1:length(subsize)) {
 
-    	minichain <- data.frame(chain[1:subsize[i],])
+    	minichain <- matrix(chain[1:subsize[i],], nrow = subsize[i])
     	
-    	t = Sys.time()
-		bm_est = mcse.multi(minichain, r = 1, method = "bm", adjust = FALSE)$cov
-		time[i,1] = Sys.time() - t
+		time[i,1] = system.time(bm_est <-  mcse.multi(minichain, r = 1, method = "bm", adjust = FALSE))[3]
 		
-		t = Sys.time()
-		ise_est = mcse.initseq(minichain)$cov
-		time[i,2] = Sys.time() - t
+		time[i,2] = system.time(ise_est <- inseq(minichain))[3]
 		
-		t = Sys.time()
-		cc_est = cov.sig(minichain, type = "geyer")$covariance
-		time[i,3] = Sys.time() - t
+		time[i,3] = system.time(cc_est <- cov.sig(minichain, type = "geyer"))[3]
 		
-		t = Sys.time()
-		sve_est = mcse.multi(minichain, r = 1, method = "tukey", adjust = FALSE)$cov
-		time[i,4] = Sys.time() - t
+		time[i,4] = system.time(sve_est <- mcse.multi(minichain, r = 1, method = "tukey", adjust = FALSE))[3]
 		
-		t = Sys.time()
-		mls_est = cov.sig(minichain, type = "MomentLS")$covariance
-		time[i,5] = Sys.time() - t
+		time[i,5] = system.time(mls_est <- cov.sig(minichain, type = "MomentLS"))[3]
+
+		trunc_ise[i] = ise_est$trunc
+
+		bm_est = bm_est$cov
+		ise_est = ise_est$Sig
+		cc_est = cc_est$covariance
+		sve_est = sve_est$cov
+		mls_est = mls_est$covariance
 
 		chain_mean = matrix(colMeans(minichain), nrow = p)
 
@@ -74,7 +74,7 @@ coverage <- function(subsize, phi, omega, level = .90){
 		ess = append(ess, list(bm_ess, ise_ess, cc_ess, sve_ess, mls_ess))
 	}
 
-	return(list("count_mat" = count_mat, "Time" = time, "estimates" = est, "ESS" = ess))
+	return(list("count_mat" = count_mat, "Time" = time, "estimates" = est, "ESS" = ess, "Truncation" = trunc_ise))
 }
 
 

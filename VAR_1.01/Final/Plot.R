@@ -1,5 +1,5 @@
 ############################################################
-############################################################ Coverage vs Comp Time
+####Coverage vs Comp Time################################### 
 source("../VAR_func.R")
 source("../Asymp_var.R")
 
@@ -80,7 +80,7 @@ add_legend("topleft", legend = subsize,
 dev.off()
 
 ############################################################
-############################################################ ESS Plot
+###ESS Plot############################################ 
 source("../VAR_func.R")
 source("../Asymp_var.R")
 
@@ -120,11 +120,11 @@ for(i in 1:B){
   }
 }
 
-se_bias_bm <- apply(ess_track_bm, 2, sd)/sqrt(B)
-se_bias_ise <- apply(ess_track_ise, 2, sd)/sqrt(B)
-se_bias_cc <- apply(ess_track_cc, 2, sd)/sqrt(B)
-se_bias_sve <- apply(ess_track_sve, 2, sd)/sqrt(B)
-se_bias_mls <- apply(ess_track_mls, 2, sd)/sqrt(B)
+se_ess_bm <- apply(ess_track_bm, 2, sd)/sqrt(B)
+se_ess_ise <- apply(ess_track_ise, 2, sd)/sqrt(B)
+se_ess_cc <- apply(ess_track_cc, 2, sd)/sqrt(B)
+se_ess_sve <- apply(ess_track_sve, 2, sd)/sqrt(B)
+se_ess_mls <- apply(ess_track_mls, 2, sd)/sqrt(B)
 
 subsize = log(subsize)/log(10)
 
@@ -158,7 +158,7 @@ legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "
 dev.off()
 
 ############################################################
-############################################################ Frobenius Norm Plot
+####Frobenius Norm Plot#################################### 
 source("../VAR_func.R")
 source("../Asymp_var.R")
 
@@ -236,7 +236,7 @@ legend("bottomright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE"
 dev.off()
 
 ############################################################
-############################################################ Eigen values sup dif Plot
+####Eigen values sup dif Plot################################ 
 source("../VAR_func.R")
 source("../Asymp_var.R")
 
@@ -316,7 +316,7 @@ dev.off()
 
 
 ############################################################
-############################################################ Computational Time Plot
+##Computational Time Plot#################################### 
 
 source("../VAR_func.R")
 source("../Asymp_var.R")
@@ -386,7 +386,7 @@ subsize = log(subsize)/log(10)
 pdf("Computational_time.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Log chain length",
-  ylim = c(0, 40), ylab = "Computational Time")
+  ylim = c(0, 80), ylab = "Computational Time")
 segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
 

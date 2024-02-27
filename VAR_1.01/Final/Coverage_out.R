@@ -20,7 +20,7 @@ Timer = matrix(0, nrow = length(subsize), ncol = 6)
 #length(colMeans(minichain))
 
 parallel::detectCores()
-n.cores <- parallel::detectCores() - 4
+n.cores <- 50
 doParallel::registerDoParallel(cores = n.cores)
 
 
