@@ -8,21 +8,36 @@ ess_track_ise = matrix(0, nrow = B, ncol = nloops)
 ess_track_cc = matrix(0, nrow = B, ncol = nloops)
 ess_track_sve = matrix(0, nrow = B, ncol = nloops)
 
+time_track_bm = matrix(0, nrow = B, ncol = nloops)
+time_track_ise = matrix(0, nrow = B, ncol = nloops)
+time_track_cc = matrix(0, nrow = B, ncol = nloops)
+time_track_sve = matrix(0, nrow = B, ncol = nloops)
+
 
 for(i in 1:B){
 	for(j in 1:nloops){
-		ess_track_bm[i,j] = as.numeric(Table[[i]][[j]][[1]][[1]])
-		ess_track_ise[i,j] = as.numeric(Table[[i]][[j]][[1]][[3]])
-		ess_track_cc[i,j] = as.numeric(Table[[i]][[j]][[1]][[4]])
-		ess_track_sve[i,j] = as.numeric(Table[[i]][[j]][[1]][[5]])
+		ess_track_bm[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+1]][[1]])
+		ess_track_ise[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+1]][[2]])
+		ess_track_cc[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+1]][[3]])
+		ess_track_sve[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+1]][[4]])
+
+		time_track_bm[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+2]][[1]])
+		time_track_ise[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+2]][[2]])
+		time_track_cc[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+2]][[3]])
+		time_track_sve[i,j] = as.numeric(Table[[i]][[j]][[(j-1)+2]][[4]])
 	}
 }
 
 
-se_ess_bm <- apply(ess_track_bm, 2, sd)/sqrt(nloops)
-se_ess_ise <- apply(ess_track_ise, 2, sd)/sqrt(nloops)
-se_ess_cc <- apply(ess_track_cc, 2, sd)/sqrt(nloops)
-se_ess_sve <- apply(ess_track_sve, 2, sd)/sqrt(nloops)
+se_ess_bm <- apply(ess_track_bm, 2, sd)/sqrt(B)
+se_ess_ise <- apply(ess_track_ise, 2, sd)/sqrt(B)
+se_ess_cc <- apply(ess_track_cc, 2, sd)/sqrt(B)
+se_ess_sve <- apply(ess_track_sve, 2, sd)/sqrt(B)
+
+se_time_bm <- apply(time_track_bm, 2, sd)/sqrt(B)
+se_time_ise <- apply(time_track_ise, 2, sd)/sqrt(B)
+se_time_cc <- apply(time_track_cc, 2, sd)/sqrt(B)
+se_time_sve <- apply(time_track_sve, 2, sd)/sqrt(B)
 
 
 add_legend <- function(...) {

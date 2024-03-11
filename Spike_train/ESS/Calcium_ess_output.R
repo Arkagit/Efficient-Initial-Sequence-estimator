@@ -36,7 +36,7 @@ data = data.frame(y=y, X)
 Table = list()
 
 parallel::detectCores()
-n.cores <- parallel::detectCores() - 1
+n.cores <- 50
 doParallel::registerDoParallel(cores = n.cores)
 
 
@@ -62,7 +62,9 @@ Table = foreach(b=1:B, .packages = c("mcmcse"))%dopar%{
 
     ess_list = list(ess_track_bm, ess_track_ise, ess_track_cc, ess_track_sve)
 
-    combine = append(combine, list(ess_list))
+    time_list = list(ess_track$bm_time, ess_track$ise_time, ess_track$cc_time, ess_track$sve_time)
+
+    combine = append(combine, list(ess_list, time_list))
   }
   combine
 }

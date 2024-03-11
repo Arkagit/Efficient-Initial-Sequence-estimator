@@ -8,16 +8,17 @@ add_legend <- function(...) {
   legend(...)
 }
 
-bm_time = log(as.numeric(Table[[1]][[1]]))
-ise_time = log(as.numeric(Table[[1]][[3]]))
-sve_time = log(as.numeric(Table[[1]][[4]]))
-cc_time = log(as.numeric(Table[[1]][[5]]))
+bm_time = matrix(0, nrow = repet, ncol = length(N))
+ise_time = matrix(0, nrow = repet, ncol = length(N))
+sve_time = matrix(0, nrow = repet, ncol = length(N))
+cc_time = matrix(0, nrow = repet, ncol = length(N))
 
-for(i in 2:repet){
-	bm_time = rbind(bm_time, log(as.numeric(Table[[i]][[1]])))
-	ise_time = rbind(ise_time, log(as.numeric(Table[[i]][[3]])))
-	sve_time = rbind(sve_time, log(as.numeric(Table[[i]][[4]])))
-	cc_time = rbind(cc_time, log(as.numeric(Table[[i]][[5]])))
+
+for(i in 1:repet){
+	bm_time[i,] = log(as.numeric(Table[[i]][[2]][[1]]))
+	ise_time[i,] = log(as.numeric(Table[[i]][[2]][[2]]))
+	sve_time[i,] = log(as.numeric(Table[[i]][[2]][[3]]))
+	cc_time[i,] = log(as.numeric(Table[[i]][[2]][[4]]))
 }
 
 se_time_bm <- apply(bm_time, 2, sd)/sqrt(repet)
@@ -25,11 +26,12 @@ se_time_ise <- apply(ise_time, 2, sd)/sqrt(repet)
 se_time_cc <- apply(cc_time, 2, sd)/sqrt(repet)
 se_time_sve <- apply(sve_time, 2, sd)/sqrt(repet)
 
+N = log(N)/log(10)
 
-# Saving bias plots for comparing estimation methods
+
 pdf("plot_time_1.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
-plot(N, colMeans(bm_time),col = "black", xlab = "Chain Length", ylab = "Log computational time", 
+plot(N, colMeans(bm_time),col = "black", xlab = "Log chain Length", ylab = "Log computational time", 
 	ylim = c(-5, 7), type = "l")
 segments(x0 = N, y0 = colMeans(bm_time) - 1.96*se_time_bm, 
 	y1 = colMeans(bm_time) + 1.96*se_time_bm)
@@ -47,6 +49,67 @@ segments(x0 = N, y0 = colMeans(ise_time) - 1.96*se_time_ise,
 	y1 = colMeans(ise_time) + 1.96*se_time_ise, col = "green")
 
 abline(h = 0, lty = 2)
-legend("bottomright",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE"),
+legend("topleft",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE"),
+ col = c("black", "skyblue", "purple", "green"), cex = 0.8,lty = 1)
+dev.off()
+
+#####################################################################
+###### ESS Plot #####################################################
+
+load("Time_d.Rdata")
+
+add_legend <- function(...) {
+  opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
+    mar=c(0, 0, 0, 0), new=TRUE)
+  on.exit(par(opar))
+  plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+  legend(...)
+}
+
+p = dim(Table[[1]][[1]][[1]])[1]
+
+bm_ess = matrix(0, nrow = repet, ncol = length(N))
+ise_ess = matrix(0, nrow = repet, ncol = length(N))
+sve_ess = matrix(0, nrow = repet, ncol = length(N))
+cc_ess = matrix(0, nrow = repet, ncol = length(N))
+
+for(i in 1:repet){
+	for(j in 1:length(N)){
+		bm_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 2]]))^(1/p)
+		ise_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 3]]))^(1/p)
+		sve_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 4]]))^(1/p)
+		cc_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 5]]))^(1/p)
+	}
+}
+
+
+se_ess_bm <- apply(bm_ess, 2, sd)/sqrt(repet)
+se_ess_sve <- apply(ise_ess, 2, sd)/sqrt(repet)
+se_ess_cc <- apply(cc_ess, 2, sd)/sqrt(repet)
+se_ess_ise <- apply(sve_ess, 2, sd)/sqrt(repet)
+
+N = log(N)/log(10)
+
+pdf("plot_ess_spike.pdf", height = 6, width = 6)
+par(mfrow = c(1,1))
+plot(N, colMeans(bm_ess),col = "black", xlab = "Chain Length", ylab = "ESS/n", 
+	ylim = c(0.05, 0.1), type = "l")
+segments(x0 = N, y0 = colMeans(bm_ess) - 1.96*se_ess_bm, 
+	y1 = colMeans(bm_ess) + 1.96*se_ess_bm)
+
+lines(N, colMeans(sve_ess), col = "skyblue", lty = 1)
+segments(x0 = N, y0 = colMeans(sve_ess) - 1.96*se_ess_sve, 
+	y1 = colMeans(sve_ess) + 1.96*se_ess_sve, col = "skyblue")
+
+lines(N, colMeans(cc_ess), col = "purple", lty = 1)
+segments(x0 = N, y0 = colMeans(cc_ess) - 1.96*se_ess_cc, 
+	y1 = colMeans(cc_ess) + 1.96*se_ess_cc, col = "purple")
+
+lines(N, colMeans(ise_ess), col = "green", lty = 1)
+segments(x0 = N, y0 = colMeans(ise_ess) - 1.96*se_ess_ise, 
+	y1 = colMeans(ise_ess) + 1.96*se_ess_ise, col = "green")
+
+#abline(h = 0, lty = 2)
+legend("topright",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE"),
  col = c("black", "skyblue", "purple", "green"), cex = 0.8,lty = 1)
 dev.off()

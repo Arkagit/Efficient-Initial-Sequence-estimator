@@ -1,0 +1,973 @@
+
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> rm(list=ls())
+> library("coda")
+> library(bpr)
+> library(foreach)
+> library(doParallel)
+Loading required package: iterators
+Loading required package: parallel
+> library(Rcpp)
+> library(RcppDist)
+> load("..//data_calcium_imaging_for_poisson.RData")
+> str(data)
+'data.frame':	920 obs. of  8 variables:
+ $ cell_id   : num  5.17e+08 5.42e+08 5.17e+08 5.17e+08 5.17e+08 ...
+ $ area      : Factor w/ 6 levels "VISal","VISam",..: 4 4 4 4 4 4 4 4 4 4 ...
+ $ CRE.line  : Factor w/ 13 levels "Cux2-CreERT2",..: 9 9 9 9 9 9 9 9 9 9 ...
+ $ depth     : num  350 350 350 350 350 350 350 350 350 350 ...
+ $ mouse_id  : num  5.02e+08 5.21e+08 5.02e+08 5.02e+08 5.02e+08 ...
+ $ experiment: Factor w/ 4 levels "A","B","C","C2": 3 3 3 3 3 1 1 1 1 1 ...
+ $ n_spikes  : num  410 188 67 218 45 366 869 735 185 656 ...
+ $ comb      : chr  "VISpScnn1a-Tg3-Cre350C" "VISpScnn1a-Tg3-Cre350C" "VISpScnn1a-Tg3-Cre350C" "VISpScnn1a-Tg3-Cre350C" ...
+> #install.packages("bpr")
+> #install.packages("RcppDist")
+> 
+> library(mcmcse)
+> source("Covariance_calc.R")
+Registered S3 methods overwritten by 'RcppEigen':
+  method               from         
+  predict.fastLm       RcppArmadillo
+  print.fastLm         RcppArmadillo
+  summary.fastLm       RcppArmadillo
+  print.summary.fastLm RcppArmadillo
+
+Attaching package: ‘RcppEigen’
+
+The following objects are masked from ‘package:RcppArmadillo’:
+
+    fastLm, fastLmPure
+
+> #### quadratic on depth
+> data$depth2 = data$depth^2
+> X = model.matrix(~ ., data = data[,c(2:4,6,9)])
+> str(X)
+ num [1:920, 1:23] 1 1 1 1 1 1 1 1 1 1 ...
+ - attr(*, "dimnames")=List of 2
+  ..$ : chr [1:920] "1" "151" "9610" "9710" ...
+  ..$ : chr [1:23] "(Intercept)" "areaVISam" "areaVISl" "areaVISp" ...
+ - attr(*, "assign")= int [1:23] 0 1 1 1 1 1 2 2 2 2 ...
+ - attr(*, "contrasts")=List of 3
+  ..$ area      : chr "contr.treatment"
+  ..$ CRE.line  : chr "contr.treatment"
+  ..$ experiment: chr "contr.treatment"
+> p = ncol(X)
+> n = nrow(X)
+> y = data$n_spikes
+> str(y)
+ num [1:920] 410 188 67 218 45 366 869 735 185 656 ...
+> 
+> mle.start <- c(summary(glm(y ~ X - 1, family = "poisson"(link = "log")))$coef[,1])
+> str(mle.start)
+ Named num [1:23] 6.2146 -0.2259 0.0752 0.0298 -0.2077 ...
+ - attr(*, "names")= chr [1:23] "X(Intercept)" "XareaVISam" "XareaVISl" "XareaVISp" ...
+> 
+> 
+> N = 5e5
+> burnin = 1:100
+> nloops <- 100
+> B <- 10
+> subsize <- floor(seq(1e4, N, length = nloops))
+> data = data.frame(y=y, X)
+> 
+> #----------------------------------------------------------------------------------#
+> Table = list()
+> 
+> parallel::detectCores()
+[1] 64
+> n.cores <- 50
+> doParallel::registerDoParallel(cores = n.cores)
+> 
+> 
+> 
+> # For loop for getting ESS and norm values corresponding to different chain sizes
+> Table = foreach(b=1:B, .packages = c("mcmcse"))%dopar%{
++   #if(b %% 1 ==0) print(b)
++   chain <- bpr::sample_bpr(y ~ . - 1, data = data,
++                       iter = N, burnin = max(burnin),
++                       prior = list(type="gaussian", b = rep(0,p), B = diag(p)*2), 
++                       pars = list(max_dist = 1e+6),
++                       state = mle.start)$sim$beta
++   combine = list()
++   for(j in 1:length(subsize)){
++     print(j)
++     minichain <- chain[1:subsize[j], ]
++     ess_track <- var_track(minichain)
++ 
++     ess_track_bm <- multiESS(minichain, covmat = ess_track$bm_est)/subsize[j]
++     ess_track_ise <- multiESS(minichain, covmat = ess_track$ise_est)/subsize[j]
++     ess_track_cc <- multiESS(minichain, covmat = ess_track$cc_est)/subsize[j]
++     ess_track_sve <- multiESS(minichain, covmat = ess_track$sve_est)/subsize[j]
++ 
++     ess_list = list(ess_track_bm, ess_track_ise, ess_track_cc, ess_track_sve)
++ 
++     time_list = list(ess_track$bm_time, ess_track$ise_time, ess_track$cc_time, ess_track$sve_time)
++ 
++     combine = append(combine, list(ess_list, time_list))
++   }
++   combine
++ }
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Sampling completed in 1.29958 hours 
+
+[1] 1
+[1] 2
+[1] 3
+Sampling completed in 1.30189 hours 
+
+[1] 1
+[1] 2
+[1] 3
+Sampling completed in 1.30316 hours 
+
+[1] 1
+[1] 4
+[1] 2
+[1] 3
+Sampling completed in 1.30368 hours 
+
+[1] 1
+[1] 2
+[1] 3
+[1] 5
+[1] 4
+[1] 6
+Sampling completed in 1.30586 hours 
+
+[1] 1
+[1] 4
+[1] 2
+[1] 3
+[1] 5
+[1] 4
+[1] 5
+[1] 6
+Sampling completed in 1.30743 hours 
+
+[1] 1
+[1] 5
+Sampling completed in 1.30754 hours 
+
+[1] 1
+[1] 2
+Sampling completed in 1.30767 hours 
+
+[1] 1
+[1] 2
+[1] 2
+[1] 6
+[1] 3
+[1] 3
+Sampling completed in 1.3081 hours 
+
+[1] 1
+[1] 3
+Sampling completed in 1.30822 hours 
+
+[1] 1
+[1] 2
+[1] 2
+[1] 6
+[1] 4
+[1] 3
+[1] 3
+[1] 5
+[1] 6
+[1] 4
+[1] 4
+[1] 4
+[1] 4
+[1] 4
+[1] 5
+[1] 5
+[1] 5
+[1] 5
+[1] 5
+[1] 6
+[1] 6
+[1] 6
+[1] 6
+[1] 6
+[1] 7
+[1] 7
+[1] 8
+[1] 7
+[1] 8
+[1] 7
+[1] 9
+[1] 8
+[1] 8
+[1] 9
+[1] 7
+[1] 10
+[1] 9
+[1] 7
+[1] 8
+[1] 10
+[1] 9
+[1] 7
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+[1] 10
+[1] 8
+[1] 8
+[1] 7
+[1] 10
+[1] 7
+[1] 9
+[1] 9
+[1] 8
+[1] 9
+[1] 8
+[1] 10
+[1] 10
+[1] 10
+[1] 9
+[1] 11
+[1] 9
+[1] 10
+[1] 11
+[1] 12
+[1] 10
+[1] 11
+[1] 11
+[1] 11
+[1] 12
+[1] 12
+[1] 12
+[1] 11
+[1] 12
+[1] 11
+[1] 11
+[1] 12
+[1] 12
+[1] 11
+[1] 11
+[1] 12
+[1] 12
+[1] 12
+[1] 13
+[1] 13
+[1] 13
+[1] 13
+[1] 13
+[1] 13
+[1] 13
+[1] 13
+[1] 13
+[1] 13
+[1] 14
+[1] 14
+[1] 14
+[1] 14
+[1] 14
+[1] 14
+[1] 14
+[1] 14
+[1] 14
+[1] 14
+[1] 15
+[1] 16
+[1] 15
+[1] 15
+[1] 17
+[1] 15
+[1] 15
+[1] 16
+[1] 15
+[1] 15
+[1] 16
+[1] 15
+[1] 15
+[1] 18
+[1] 15
+[1] 16
+[1] 17
+[1] 16
+[1] 16
+[1] 16
+[1] 17
+[1] 16
+[1] 16
+[1] 16
+[1] 17
+[1] 18
+[1] 17
+[1] 17
+[1] 19
+[1] 17
+[1] 17
+[1] 18
+[1] 17
+[1] 17
+[1] 18
+[1] 18
+[1] 18
+[1] 19
+[1] 20
+[1] 18
+[1] 18
+[1] 18
+[1] 18
+[1] 19
+[1] 20
+[1] 21
+[1] 19
+[1] 19
+[1] 19
+[1] 19
+[1] 20
+[1] 19
+[1] 21
+[1] 19
+[1] 19
+[1] 20
+[1] 20
+[1] 20
+[1] 20
+[1] 21
+[1] 22
+[1] 20
+[1] 21
+[1] 21
+[1] 22
+[1] 20
+[1] 20
+[1] 21
+[1] 21
+[1] 23
+[1] 22
+[1] 21
+[1] 22
+[1] 23
+[1] 22
+[1] 21
+[1] 22
+[1] 21
+[1] 22
+[1] 24
+[1] 23
+[1] 23
+[1] 23
+[1] 23
+[1] 24
+[1] 22
+[1] 23
+[1] 24
+[1] 25
+[1] 22
+[1] 22
+[1] 24
+[1] 24
+[1] 24
+[1] 25
+[1] 25
+[1] 23
+[1] 24
+[1] 25
+[1] 23
+[1] 23
+[1] 25
+[1] 25
+[1] 24
+[1] 24
+[1] 25
+[1] 24
+[1] 25
+[1] 25
+[1] 25
+[1] 26
+[1] 26
+[1] 26
+[1] 26
+[1] 26
+[1] 26
+[1] 26
+[1] 26
+[1] 26
+[1] 26
+[1] 27
+[1] 27
+[1] 27
+[1] 28
+[1] 29
+[1] 28
+[1] 27
+[1] 27
+[1] 28
+[1] 27
+[1] 29
+[1] 27
+[1] 29
+[1] 27
+[1] 28
+[1] 28
+[1] 28
+[1] 27
+[1] 29
+[1] 28
+[1] 29
+[1] 29
+[1] 28
+[1] 29
+[1] 27
+[1] 28
+[1] 29
+[1] 29
+[1] 28
+[1] 29
+[1] 30
+[1] 30
+[1] 30
+[1] 30
+[1] 30
+[1] 30
+[1] 30
+[1] 30
+[1] 30
+[1] 30
+[1] 31
+[1] 32
+[1] 31
+[1] 32
+[1] 31
+[1] 31
+[1] 32
+[1] 31
+[1] 31
+[1] 32
+[1] 32
+[1] 32
+[1] 31
+[1] 31
+[1] 31
+[1] 31
+[1] 32
+[1] 32
+[1] 32
+[1] 32
+[1] 33
+[1] 33
+[1] 33
+[1] 34
+[1] 34
+[1] 33
+[1] 33
+[1] 35
+[1] 35
+[1] 33
+[1] 34
+[1] 34
+[1] 34
+[1] 35
+[1] 36
+[1] 33
+[1] 36
+[1] 33
+[1] 34
+[1] 35
+[1] 35
+[1] 33
+[1] 37
+[1] 33
+[1] 37
+[1] 35
+[1] 38
+[1] 36
+[1] 38
+[1] 34
+[1] 36
+[1] 34
+[1] 36
+[1] 39
+[1] 34
+[1] 37
+[1] 39
+[1] 34
+[1] 35
+[1] 37
+[1] 37
+[1] 35
+[1] 40
+[1] 35
+[1] 38
+[1] 36
+[1] 40
+[1] 35
+[1] 38
+[1] 38
+[1] 41
+[1] 39
+[1] 39
+[1] 41
+[1] 37
+[1] 36
+[1] 39
+[1] 36
+[1] 40
+[1] 36
+[1] 37
+[1] 40
+[1] 36
+[1] 38
+[1] 40
+[1] 41
+[1] 38
+[1] 37
+[1] 42
+[1] 37
+[1] 41
+[1] 37
+[1] 42
+[1] 41
+[1] 39
+[1] 39
+[1] 38
+[1] 38
+[1] 38
+[1] 40
+[1] 43
+[1] 43
+[1] 42
+[1] 40
+[1] 39
+[1] 39
+[1] 39
+[1] 42
+[1] 42
+[1] 41
+[1] 41
+[1] 43
+[1] 40
+[1] 40
+[1] 40
+[1] 43
+[1] 43
+[1] 41
+[1] 41
+[1] 41
+[1] 42
+[1] 42
+[1] 43
+[1] 43
+[1] 42
+[1] 42
+[1] 42
+[1] 43
+[1] 43
+[1] 43
+[1] 44
+[1] 44
+[1] 45
+[1] 44
+[1] 45
+[1] 44
+[1] 45
+[1] 45
+[1] 44
+[1] 45
+[1] 44
+[1] 44
+[1] 45
+[1] 46
+[1] 44
+[1] 45
+[1] 46
+[1] 44
+[1] 45
+[1] 46
+[1] 44
+[1] 45
+[1] 46
+[1] 45
+[1] 46
+[1] 47
+[1] 46
+[1] 47
+[1] 46
+[1] 46
+[1] 47
+[1] 46
+[1] 47
+[1] 46
+[1] 47
+[1] 47
+[1] 47
+[1] 47
+[1] 47
+[1] 47
+[1] 48
+[1] 48
+[1] 48
+[1] 48
+[1] 48
+[1] 48
+[1] 48
+[1] 48
+[1] 48
+[1] 48
+[1] 49
+[1] 49
+[1] 50
+[1] 49
+[1] 51
+[1] 50
+[1] 52
+[1] 50
+[1] 51
+[1] 51
+[1] 52
+[1] 52
+[1] 49
+[1] 50
+[1] 51
+[1] 52
+[1] 53
+[1] 49
+[1] 53
+[1] 50
+[1] 53
+[1] 51
+[1] 52
+[1] 49
+[1] 50
+[1] 53
+[1] 51
+[1] 49
+[1] 52
+[1] 50
+[1] 51
+[1] 49
+[1] 49
+[1] 52
+[1] 50
+[1] 53
+[1] 50
+[1] 51
+[1] 49
+[1] 52
+[1] 51
+[1] 50
+[1] 51
+[1] 52
+[1] 52
+[1] 53
+[1] 53
+[1] 53
+[1] 53
+[1] 53
+[1] 54
+[1] 55
+[1] 56
+[1] 57
+[1] 58
+[1] 59
+[1] 60
+[1] 61
+[1] 54
+[1] 55
+[1] 54
+[1] 62
+[1] 63
+[1] 56
+[1] 55
+[1] 54
+[1] 64
+[1] 56
+[1] 55
+[1] 65
+[1] 56
+[1] 57
+[1] 58
+[1] 59
+[1] 57
+[1] 60
+[1] 58
+[1] 57
+[1] 58
+[1] 59
+[1] 59
+[1] 60
+[1] 61
+[1] 60
+[1] 62
+[1] 63
+[1] 64
+[1] 61
+[1] 65
+[1] 61
+[1] 62
+[1] 62
+[1] 63
+[1] 63
+[1] 64
+[1] 64
+[1] 65
+[1] 65
+[1] 66
+[1] 67
+[1] 68
+[1] 69
+[1] 66
+[1] 67
+[1] 68
+[1] 69
+[1] 66
+[1] 66
+[1] 67
+[1] 67
+[1] 68
+[1] 68
+[1] 69
+[1] 69
+[1] 70
+[1] 71
+[1] 72
+[1] 54
+[1] 73
+[1] 55
+[1] 74
+[1] 56
+[1] 70
+[1] 71
+[1] 57
+[1] 58
+[1] 59
+[1] 60
+[1] 70
+[1] 70
+[1] 72
+[1] 54
+[1] 61
+[1] 71
+[1] 55
+[1] 71
+[1] 73
+[1] 62
+[1] 56
+[1] 63
+[1] 74
+[1] 64
+[1] 54
+[1] 65
+[1] 55
+[1] 57
+[1] 56
+[1] 72
+[1] 58
+[1] 75
+[1] 72
+[1] 59
+[1] 73
+[1] 76
+[1] 60
+[1] 73
+[1] 54
+[1] 74
+[1] 57
+[1] 54
+[1] 55
+[1] 54
+[1] 77
+[1] 55
+[1] 74
+[1] 55
+[1] 58
+[1] 56
+[1] 56
+[1] 56
+[1] 61
+[1] 59
+[1] 62
+[1] 60
+[1] 63
+[1] 57
+[1] 57
+[1] 64
+[1] 57
+[1] 58
+[1] 58
+[1] 65
+[1] 59
+[1] 58
+[1] 61
+[1] 59
+[1] 60
+[1] 59
+[1] 62
+[1] 60
+[1] 60
+[1] 75
+[1] 63
+[1] 76
+[1] 61
+[1] 66
+[1] 64
+[1] 62
+[1] 61
+[1] 77
+[1] 61
+[1] 65
+[1] 67
+[1] 63
+[1] 62
+[1] 62
+[1] 63
+[1] 64
+[1] 63
+[1] 68
+[1] 65
+[1] 64
+[1] 69
+[1] 64
+[1] 65
+[1] 65
+[1] 75
+[1] 75
+[1] 76
+[1] 76
+[1] 77
+[1] 77
+[1] 66
+[1] 67
+[1] 68
+[1] 69
+[1] 66
+[1] 67
+[1] 66
+[1] 68
+[1] 66
+[1] 66
+[1] 67
+[1] 69
+[1] 67
+[1] 67
+[1] 68
+[1] 69
+[1] 68
+[1] 68
+[1] 69
+[1] 69
+[1] 70
+[1] 71
+[1] 72
+[1] 73
+[1] 74
+[1] 70
+[1] 71
+[1] 72
+[1] 70
+[1] 73
+[1] 71
+[1] 74
+[1] 75
+[1] 70
+[1] 76
+[1] 70
+[1] 71
+[1] 70
+[1] 71
+[1] 71
+[1] 77
+[1] 72
+[1] 73
+[1] 72
+[1] 74
+[1] 72
+[1] 73
+[1] 72
+[1] 73
+[1] 73
+[1] 74
+[1] 74
+[1] 74
+[1] 75
+[1] 76
+[1] 77
+[1] 75
+[1] 76
+[1] 75
+[1] 75
+[1] 77
+[1] 76
+[1] 76
+[1] 75
+[1] 77
+[1] 76
+[1] 77
+[1] 77
+[1] 78
+[1] 79
+[1] 80
+[1] 81
+[1] 78
+[1] 79
+[1] 80
