@@ -28,8 +28,8 @@ subsize <- floor(seq(1e4, N, length = nloops))
 Table = list()
 
 parallel::detectCores()
-n.cores <- parallel::detectCores() - 1
-doParallel::registerDoParallel(cores = 12)
+n.cores <- 50
+doParallel::registerDoParallel(cores = n.cores)
 
 
 

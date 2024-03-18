@@ -31,27 +31,30 @@ Type 'q()' to quit R.
 > ise_time = matrix(0, nrow = repet, ncol = length(N))
 > sve_time = matrix(0, nrow = repet, ncol = length(N))
 > cc_time = matrix(0, nrow = repet, ncol = length(N))
+> mls_time = matrix(0, nrow = repet, ncol = length(N))
 > 
 > 
 > for(i in 1:repet){
-+ 	bm_time[i,] = log(as.numeric(Table[[i]][[2]][[1]]))
-+ 	ise_time[i,] = log(as.numeric(Table[[i]][[2]][[2]]))
-+ 	sve_time[i,] = log(as.numeric(Table[[i]][[2]][[3]]))
-+ 	cc_time[i,] = log(as.numeric(Table[[i]][[2]][[4]]))
++ 	bm_time[i,] = as.numeric(Table[[i]][[2]][[1]])
++ 	ise_time[i,] = as.numeric(Table[[i]][[2]][[2]])
++ 	sve_time[i,] = as.numeric(Table[[i]][[2]][[3]])
++ 	cc_time[i,] = as.numeric(Table[[i]][[2]][[4]])
++ 	mls_time[i,] = as.numeric(Table[[i]][[2]][[5]])
 + }
 > 
 > se_time_bm <- apply(bm_time, 2, sd)/sqrt(repet)
 > se_time_ise <- apply(ise_time, 2, sd)/sqrt(repet)
 > se_time_cc <- apply(cc_time, 2, sd)/sqrt(repet)
 > se_time_sve <- apply(sve_time, 2, sd)/sqrt(repet)
+> se_time_mls <- apply(mls_time, 2, sd)/sqrt(repet)
 > 
 > N = log(N)/log(10)
 > 
 > 
-> pdf("plot_time_1.pdf", height = 6, width = 6)
+> pdf("plot_time_spike.pdf", height = 6, width = 6)
 > par(mfrow = c(1,1))
-> plot(N, colMeans(bm_time),col = "black", xlab = "Log chain Length", ylab = "Log computational time", 
-+ 	ylim = c(-5, 7), type = "l")
+> plot(N, colMeans(bm_time),col = "black", xlab = "Log chain Length", ylab = "Computational time", 
++ 	ylim = c(0, 250), type = "l")
 > segments(x0 = N, y0 = colMeans(bm_time) - 1.96*se_time_bm, 
 + 	y1 = colMeans(bm_time) + 1.96*se_time_bm)
 > 
@@ -67,9 +70,12 @@ Type 'q()' to quit R.
 > segments(x0 = N, y0 = colMeans(ise_time) - 1.96*se_time_ise, 
 + 	y1 = colMeans(ise_time) + 1.96*se_time_ise, col = "green")
 > 
-> abline(h = 0, lty = 2)
-> legend("topleft",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE"),
-+  col = c("black", "skyblue", "purple", "green"), cex = 0.8,lty = 1)
+> lines(N, colMeans(mls_time), col = "brown", lty = 1)
+> segments(x0 = N, y0 = colMeans(mls_time) - 1.96*se_time_mls, 
++ 	y1 = colMeans(mls_time) + 1.96*se_time_mls, col = "brown")
+> 
+> legend("topleft",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE", "MLS"),
++  col = c("black", "skyblue", "purple", "green", "brown"), cex = 0.8,lty = 1)
 > dev.off()
 null device 
           1 
@@ -93,6 +99,7 @@ null device
 > ise_ess = matrix(0, nrow = repet, ncol = length(N))
 > sve_ess = matrix(0, nrow = repet, ncol = length(N))
 > cc_ess = matrix(0, nrow = repet, ncol = length(N))
+> mls_ess = matrix(0, nrow = repet, ncol = length(N))
 > 
 > for(i in 1:repet){
 + 	for(j in 1:length(N)){
@@ -100,6 +107,7 @@ null device
 + 		ise_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 3]]))^(1/p)
 + 		sve_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 4]]))^(1/p)
 + 		cc_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 5]]))^(1/p)
++ 		mls_ess[i,j] = (det(Table[[i]][[1]][[6*(j-1) + 1]])/det(Table[[i]][[1]][[6*(j-1) + 6]]))^(1/p)
 + 	}
 + }
 > 
@@ -108,6 +116,7 @@ null device
 > se_ess_sve <- apply(ise_ess, 2, sd)/sqrt(repet)
 > se_ess_cc <- apply(cc_ess, 2, sd)/sqrt(repet)
 > se_ess_ise <- apply(sve_ess, 2, sd)/sqrt(repet)
+> se_ess_mls <- apply(mls_ess, 2, sd)/sqrt(repet)
 > 
 > N = log(N)/log(10)
 > 
@@ -130,13 +139,17 @@ null device
 > segments(x0 = N, y0 = colMeans(ise_ess) - 1.96*se_ess_ise, 
 + 	y1 = colMeans(ise_ess) + 1.96*se_ess_ise, col = "green")
 > 
+> lines(N, colMeans(mls_ess), col = "brown", lty = 1)
+> segments(x0 = N, y0 = colMeans(mls_ess) - 1.96*se_ess_mls, 
++ 	y1 = colMeans(mls_ess) + 1.96*se_ess_mls, col = "brown")
+> 
 > #abline(h = 0, lty = 2)
-> legend("topright",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE"),
-+  col = c("black", "skyblue", "purple", "green"), cex = 0.8,lty = 1)
+> legend("topright",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE", "MLS"),
++  col = c("black", "skyblue", "purple", "green", "brown"), cex = 0.8,lty = 1)
 > dev.off()
 null device 
           1 
 > 
 > proc.time()
    user  system elapsed 
-  0.561   0.065   0.610 
+  0.568   0.087   0.640 

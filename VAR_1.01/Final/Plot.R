@@ -72,12 +72,12 @@ plot(chart[,1], time[,1], xlim = c(0.43, 1), ylim = c(-2, 2),type = 'b', xlab = 
 lines(chart[,2], time[,2],type = 'b', col = "green", pch = 1:dim(time)[1])
 lines(chart[,3], time[,3],type = 'b', col = "purple", pch = 1:dim(time)[1])
 lines(chart[,4], time[,4],type = 'b', col = "skyblue", pch = 1:dim(time)[1])
-#lines(chart[,5], time[,5],type = 'b', col = "brown", pch = 1:dim(time)[1])
+lines(chart[,5], time[,5],type = 'b', col = "brown", pch = 1:dim(time)[1])
 legend("topleft", legend = subsize,
        lwd = 1, cex = 0.75, col = "black", pch = 1:(dim(time)[1]))
 
-add_legend("topright", bty = "n", legend = c("BM", "New ISE (Geyer)", "ISE", "SVE"), 
-	col = c("black", "purple", "green", "skyblue"), lty = 1, cex=0.65)
+add_legend("topright", bty = "n", legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "MLS"), 
+	col = c("black", "purple", "green", "skyblue", "brown"), lty = 1, cex=0.65)
 dev.off()
 
 ############################################################
@@ -149,12 +149,12 @@ lines(subsize, colMeans(ess_track_sve), col = "skyblue")
 segments(x0 = subsize, y0 = colMeans(ess_track_sve) - 1.96*se_ess_sve, 
   y1 = colMeans(ess_track_sve) + 1.96*se_ess_sve, col = "skyblue")
 
-#lines(subsize, colMeans(ess_track_mls), col = "brown")
-#segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
-#  y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
+lines(subsize, colMeans(ess_track_mls), col = "brown")
+segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
+  y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
 abline(h = ess_true, lty = 2)
-legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "True"), 
-  col = c("black", "purple", "green", "skyblue", "black"), lty = c(1,1,1,1,2), cex=0.65)
+legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "MLS", "True"), 
+  col = c("black", "purple", "green", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
 
 dev.off()
 
@@ -227,12 +227,12 @@ lines(subsize, colMeans(norm_track_sve), col = "skyblue")
 segments(x0 = subsize, y0 = colMeans(norm_track_sve) - 1.96*se_norm_sve, 
   y1 = colMeans(norm_track_sve) + 1.96*se_norm_sve, col = "skyblue")
 
-#lines(subsize, colMeans(norm_track_mls), col = "brown")
-#segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
-#  y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
+lines(subsize, colMeans(norm_track_mls), col = "brown")
+segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
+  y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
 abline(h = true_norm, lty = 2)
-legend("bottomright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "True"), 
-  col = c("black", "purple", "green", "skyblue", "black"), lty = c(1,1,1,1,2), cex=0.75)
+legend("bottomright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "MLS", "True"), 
+  col = c("black", "purple", "green", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
 
 dev.off()
 
@@ -306,12 +306,12 @@ lines(subsize, colMeans(bias_track_sve), col = "skyblue")
 segments(x0 = subsize, y0 = colMeans(bias_track_sve) - 1.96*se_bias_sve, 
   y1 = colMeans(bias_track_sve) + 1.96*se_bias_sve, col = "skyblue")
 
-#lines(subsize, colMeans(bias_track_mls), col = "brown")
-#segments(x0 = subsize, y0 = colMeans(bias_track_mls) - 1.96*se_bias_mls, 
-#  y1 = colMeans(bias_track_mls) + 1.96*se_bias_mls, col = "brown")
+lines(subsize, colMeans(bias_track_mls), col = "brown")
+segments(x0 = subsize, y0 = colMeans(bias_track_mls) - 1.96*se_bias_mls, 
+  y1 = colMeans(bias_track_mls) + 1.96*se_bias_mls, col = "brown")
 
-legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE"), 
-  col = c("black", "purple", "green", "skyblue"), lty = 1, cex=0.75)
+legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "MLS", "SVE"), 
+  col = c("black", "purple", "green", "brown", "skyblue"), lty = 1, cex=0.75)
 
 dev.off()
 
@@ -403,12 +403,12 @@ lines(subsize, colMeans(time_track_sve), col = "skyblue")
 segments(x0 = subsize, y0 = colMeans(time_track_sve) - 1.96*se_time_sve, 
   y1 = colMeans(time_track_sve) + 1.96*se_time_sve, col = "skyblue")
 
-#lines(subsize, colMeans(time_track_mls), col = "brown")
-#segments(x0 = subsize, y0 = colMeans(time_track_mls) - 1.96*se_time_mls, 
-#  y1 = colMeans(time_track_mls) + 1.96*se_time_mls, col = "brown")
+lines(subsize, colMeans(time_track_mls), col = "brown")
+segments(x0 = subsize, y0 = colMeans(time_track_mls) - 1.96*se_time_mls, 
+  y1 = colMeans(time_track_mls) + 1.96*se_time_mls, col = "brown")
 
-legend("topleft", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE"), 
-  col = c("black", "purple", "green", "skyblue"), lty = 1, cex=0.75)
+legend("topleft", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "MLS", "SVE"), 
+  col = c("black", "purple", "green", "brown", "skyblue"), lty = 1, cex=0.75)
 
 dev.off()
 
