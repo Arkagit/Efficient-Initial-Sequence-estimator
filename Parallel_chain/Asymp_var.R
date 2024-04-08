@@ -2,7 +2,7 @@
 library(HadamardR)
 
 ########## Initialization
-rho_max = 2
+rho_max = 1.01
 p = 12
 omega = diag(rep(1, p))
 

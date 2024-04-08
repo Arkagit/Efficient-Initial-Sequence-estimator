@@ -69,15 +69,15 @@ pdf("coverage_time1.pdf", height = 6, width = 8)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(chart[,1], time[,1], xlim = c(0.43, 1), ylim = c(-2, 2),type = 'b', xlab = "Coverage",
 	ylab = "log(Time)", pch = 1:dim(time)[1])
-lines(chart[,2], time[,2],type = 'b', col = "green", pch = 1:dim(time)[1])
+lines(chart[,2], time[,2],type = 'b', col = "red", pch = 1:dim(time)[1])
 lines(chart[,3], time[,3],type = 'b', col = "purple", pch = 1:dim(time)[1])
 lines(chart[,4], time[,4],type = 'b', col = "skyblue", pch = 1:dim(time)[1])
 lines(chart[,5], time[,5],type = 'b', col = "brown", pch = 1:dim(time)[1])
 legend("topleft", legend = subsize,
        lwd = 1, cex = 0.75, col = "black", pch = 1:(dim(time)[1]))
 
-add_legend("topright", bty = "n", legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "MLS"), 
-	col = c("black", "purple", "green", "skyblue", "brown"), lty = 1, cex=0.65)
+add_legend("topright", bty = "n", legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS"), 
+	col = c("black", "purple", "red", "skyblue", "brown"), lty = 1, cex=0.65)
 dev.off()
 
 ############################################################
@@ -137,9 +137,9 @@ plot(subsize, colMeans(ess_track_bm), type = "l", xlab = "Log chain length",
 segments(x0 = subsize, y0 = colMeans(ess_track_bm) - 1.96*se_ess_bm, 
   y1 = colMeans(ess_track_bm) + 1.96*se_ess_bm)
 
-lines(subsize, colMeans(ess_track_ise), col = "green")
+lines(subsize, colMeans(ess_track_ise), col = "red")
 segments(x0 = subsize, y0 = colMeans(ess_track_ise) - 1.96*se_ess_ise, 
-  y1 = colMeans(ess_track_ise) + 1.96*se_ess_bm, col = "green")
+  y1 = colMeans(ess_track_ise) + 1.96*se_ess_bm, col = "red")
 
 lines(subsize, colMeans(ess_track_cc), col = "purple")
 segments(x0 = subsize, y0 = colMeans(ess_track_cc) - 1.96*se_ess_cc, 
@@ -153,8 +153,8 @@ lines(subsize, colMeans(ess_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
   y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
 abline(h = ess_true, lty = 2)
-legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "MLS", "True"), 
-  col = c("black", "purple", "green", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
+legend("topright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS", "True"), 
+  col = c("black", "purple", "red", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
 
 dev.off()
 
@@ -215,9 +215,9 @@ plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Log chain length",
 segments(x0 = subsize, y0 = colMeans(norm_track_bm) - 1.96*se_norm_bm, 
   y1 = colMeans(norm_track_bm) + 1.96*se_norm_bm)
 
-lines(subsize, colMeans(norm_track_ise), col = "green")
+lines(subsize, colMeans(norm_track_ise), col = "red")
 segments(x0 = subsize, y0 = colMeans(norm_track_ise) - 1.96*se_norm_ise, 
-  y1 = colMeans(norm_track_ise) + 1.96*se_norm_bm, col = "green")
+  y1 = colMeans(norm_track_ise) + 1.96*se_norm_bm, col = "red")
 
 lines(subsize, colMeans(norm_track_cc), col = "purple")
 segments(x0 = subsize, y0 = colMeans(norm_track_cc) - 1.96*se_norm_cc, 
@@ -231,8 +231,8 @@ lines(subsize, colMeans(norm_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
   y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
 abline(h = true_norm, lty = 2)
-legend("bottomright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "SVE", "MLS", "True"), 
-  col = c("black", "purple", "green", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
+legend("bottomright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS", "True"), 
+  col = c("black", "purple", "red", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
 
 dev.off()
 
@@ -294,9 +294,9 @@ plot(subsize, colMeans(bias_track_bm), type = "l", xlab = "Log chain length",
 segments(x0 = subsize, y0 = colMeans(bias_track_bm) - 1.96*se_bias_bm, 
   y1 = colMeans(bias_track_bm) + 1.96*se_bias_bm)
 
-lines(subsize, colMeans(bias_track_ise), col = "green")
+lines(subsize, colMeans(bias_track_ise), col = "red")
 segments(x0 = subsize, y0 = colMeans(bias_track_ise) - 1.96*se_bias_ise, 
-  y1 = colMeans(bias_track_ise) + 1.96*se_bias_bm, col = "green")
+  y1 = colMeans(bias_track_ise) + 1.96*se_bias_bm, col = "red")
 
 lines(subsize, colMeans(bias_track_cc), col = "purple")
 segments(x0 = subsize, y0 = colMeans(bias_track_cc) - 1.96*se_bias_cc, 
@@ -310,8 +310,8 @@ lines(subsize, colMeans(bias_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(bias_track_mls) - 1.96*se_bias_mls, 
   y1 = colMeans(bias_track_mls) + 1.96*se_bias_mls, col = "brown")
 
-legend("topright", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "MLS", "SVE"), 
-  col = c("black", "purple", "green", "brown", "skyblue"), lty = 1, cex=0.75)
+legend("topright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "CC - MLS", "SVE"), 
+  col = c("black", "purple", "red", "brown", "skyblue"), lty = 1, cex=0.75)
 
 dev.off()
 
@@ -391,9 +391,9 @@ plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Log chain length",
 segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
 
-lines(subsize, colMeans(time_track_ise), col = "green")
+lines(subsize, colMeans(time_track_ise), col = "red")
 segments(x0 = subsize, y0 = colMeans(time_track_ise) - 1.96*se_time_ise, 
-  y1 = colMeans(time_track_ise) + 1.96*se_time_bm, col = "green")
+  y1 = colMeans(time_track_ise) + 1.96*se_time_bm, col = "red")
 
 lines(subsize, colMeans(time_track_cc), col = "purple")
 segments(x0 = subsize, y0 = colMeans(time_track_cc) - 1.96*se_time_cc, 
@@ -407,8 +407,8 @@ lines(subsize, colMeans(time_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(time_track_mls) - 1.96*se_time_mls, 
   y1 = colMeans(time_track_mls) + 1.96*se_time_mls, col = "brown")
 
-legend("topleft", bty = "n",legend = c("BM", "New ISE (Geyer)", "ISE", "MLS", "SVE"), 
-  col = c("black", "purple", "green", "brown", "skyblue"), lty = 1, cex=0.75)
+legend("topleft", bty = "n",legend = c("BM", "CC - ISE", "ISE", "CC - MLS", "SVE"), 
+  col = c("black", "purple", "red", "brown", "skyblue"), lty = 1, cex=0.75)
 
 dev.off()
 

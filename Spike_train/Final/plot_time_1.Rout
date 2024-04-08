@@ -66,16 +66,16 @@ Type 'q()' to quit R.
 > segments(x0 = N, y0 = colMeans(cc_time) - 1.96*se_time_cc, 
 + 	y1 = colMeans(cc_time) + 1.96*se_time_cc, col = "purple")
 > 
-> lines(N, colMeans(ise_time), col = "green", lty = 1)
+> lines(N, colMeans(ise_time), col = "red", lty = 1)
 > segments(x0 = N, y0 = colMeans(ise_time) - 1.96*se_time_ise, 
-+ 	y1 = colMeans(ise_time) + 1.96*se_time_ise, col = "green")
++ 	y1 = colMeans(ise_time) + 1.96*se_time_ise, col = "red")
 > 
 > lines(N, colMeans(mls_time), col = "brown", lty = 1)
 > segments(x0 = N, y0 = colMeans(mls_time) - 1.96*se_time_mls, 
 + 	y1 = colMeans(mls_time) + 1.96*se_time_mls, col = "brown")
 > 
-> legend("topleft",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE", "MLS"),
-+  col = c("black", "skyblue", "purple", "green", "brown"), cex = 0.8,lty = 1)
+> legend("topleft",legend = c("BM", "SVE", "CC - ISE", "ISE", "CC - MLS"),
++  col = c("black", "skyblue", "purple", "red", "brown"), cex = 0.8,lty = 1)
 > dev.off()
 null device 
           1 
@@ -135,21 +135,21 @@ null device
 > segments(x0 = N, y0 = colMeans(cc_ess) - 1.96*se_ess_cc, 
 + 	y1 = colMeans(cc_ess) + 1.96*se_ess_cc, col = "purple")
 > 
-> lines(N, colMeans(ise_ess), col = "green", lty = 1)
+> lines(N, colMeans(ise_ess), col = "red", lty = 1)
 > segments(x0 = N, y0 = colMeans(ise_ess) - 1.96*se_ess_ise, 
-+ 	y1 = colMeans(ise_ess) + 1.96*se_ess_ise, col = "green")
++ 	y1 = colMeans(ise_ess) + 1.96*se_ess_ise, col = "red")
 > 
 > lines(N, colMeans(mls_ess), col = "brown", lty = 1)
 > segments(x0 = N, y0 = colMeans(mls_ess) - 1.96*se_ess_mls, 
 + 	y1 = colMeans(mls_ess) + 1.96*se_ess_mls, col = "brown")
 > 
 > #abline(h = 0, lty = 2)
-> legend("topright",legend = c("BM", "SVE", "New ISE (Geyer)", "ISE", "MLS"),
-+  col = c("black", "skyblue", "purple", "green", "brown"), cex = 0.8,lty = 1)
+> legend("topright",legend = c("BM", "SVE", "CC - ISE", "ISE", "CC - MLS"),
++  col = c("black", "skyblue", "purple", "red", "brown"), cex = 0.8,lty = 1)
 > dev.off()
 null device 
           1 
 > 
 > proc.time()
    user  system elapsed 
-  0.568   0.087   0.640 
+  0.600   0.058   0.644 
