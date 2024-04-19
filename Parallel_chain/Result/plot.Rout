@@ -70,16 +70,16 @@ Type 'q()' to quit R.
 > colnames(final_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_ess
                        M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.02265967 0.02229680 0.02205609 0.02200571
-STAN              0.02151090 0.02198808 0.02186404 0.02220580
+Globally Centered 0.02124214 0.02051798 0.01970713 0.01955377
+STAN              0.02189871 0.02214975 0.02165502 0.02186568
 > 
 > sd_mat_ess = matrix(c(sd_ess_glob, sd_ess_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_ess) = c("Globally Centered", "STAN")
 > colnames(sd_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_ess
                         M = 2       M = 4       M = 8      M = 16
-Globally Centered 0.003492289 0.003577899 0.003669439 0.003660229
-STAN              0.003857387 0.003521601 0.003514001 0.003409186
+Globally Centered 0.002501123 0.001818617 0.001428744 0.001096377
+STAN              0.003807326 0.002905277 0.002727992 0.003025665
 > 
 > 
 > ############################################
@@ -121,17 +121,17 @@ STAN              0.003857387 0.003521601 0.003514001 0.003409186
 > colnames(final_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_frob
                      M = 2    M = 4    M = 8   M = 16
-Globally Centered 4497.988 4532.994 4643.732 4644.479
-STAN              4316.634 3178.044 2670.203 2468.445
+Globally Centered 3244.169 2550.244 2095.909 1878.264
+STAN              4659.604 3037.572 2720.619 2526.359
 > 
 > sd_mat_frob = matrix(c(sd_frob_glob, sd_frob_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_frob) = c("Globally Centered", "STAN")
 > colnames(sd_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_frob
-                     M = 2     M = 4     M = 8    M = 16
-Globally Centered 2476.027 2379.9412 2509.6387 2485.7962
-STAN              3591.920  960.5156  850.1426  870.1972
+                     M = 2     M = 4    M = 8   M = 16
+Globally Centered 1023.652  757.5985 640.7516 461.2285
+STAN              4944.254 1039.5630 914.8641 838.8003
 > 
 > proc.time()
    user  system elapsed 
-  0.570   0.063   0.619 
+  0.593   0.043   0.623 

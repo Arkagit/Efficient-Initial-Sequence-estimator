@@ -51,12 +51,12 @@ Estimate = foreach(b = 1:B, .packages = c("mcmcse"))%dopar%{
 			}
 			print(4*b+2)
 
-			Sigma_global[[u]] = parallel_sig(par_chain = minichain, M = M[u], ch_l = subsize[s], chain_val = chain_val)
+			Sigma_global[[u]] = parallel_sig(par_chain = minichain, M = M[u], ch_l = subsize[s])
 			#Sigma_global[[u]] = norm(true_var - parallel_sig(par_chain = minichain, M = M[u], ch_l = subsize[s], chain_val = chain_val), type = "F")
 			print(4*b + 3)
 			Sigma_stan[[u]] = parallel_stan_sig(minichain, M[u], subsize[s])
 			#Sigma_stan[[u]] = norm(true_var - parallel_stan_sig(minichain, M[u], subsize[s]), type = "F")
-			Gamma[[u]] = var(minichain[[chain_val]])
+			Gamma[[u]] = Gamma0(minichain, M[u])
 		}
 		result[[s]] = list(Sigma_global, Sigma_stan, Gamma)
 	}
