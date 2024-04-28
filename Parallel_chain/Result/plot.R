@@ -99,3 +99,35 @@ sd_mat_frob = matrix(c(sd_frob_glob, sd_frob_stan), byrow = TRUE, nrow = 2)
 rownames(sd_mat_frob) = c("Globally Centered", "STAN")
 colnames(sd_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 sd_mat_frob
+
+#################### boxplot ##############
+
+boxplot(frob_track_glob[,7,i])
+
+plot(frob_track_glob[,7,i])
+
+df = data.frame(
+  id = c(rep("global", B), rep("stan", B)),
+  "2" = c(frob_track_glob[,7,1], frob_track_stan[,7,1]),
+  "4" = c(frob_track_glob[,7,2], frob_track_stan[,7,2]),
+  "8" = c(frob_track_glob[,7,3], frob_track_stan[,7,3]),
+  "16" = c(frob_track_glob[,7,4], frob_track_stan[,7,4]))
+
+
+pdf("Boxplot.pdf", height = 6, width = 6)
+par(mar = c(5.1, 4.8, 4.1, 2.1))
+
+boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains", 
+  ylab = "Frobenius Norm", ylim = c(0, 15000)) #invisible boxes - only axes and plot area
+boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="red", 
+  boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
+boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="blue", 
+  boxwex=0.25, at = 1:ncol(df[,-1]) + 0.15) #shift to the right by +0.15
+legend("topright", legend = c("Globally Centered", "STAN"), 
+       fill = c("red", "blue"), border = "black")
+dev.off()
+
+
+
+
+
