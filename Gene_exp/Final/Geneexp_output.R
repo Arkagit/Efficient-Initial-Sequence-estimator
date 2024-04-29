@@ -1,23 +1,18 @@
 rm(list=ls())
-Rcpp::sourceCpp('../bgl.cpp') 
-library(gglasso)
-library("coda")
-library(bpr)
+Rcpp::sourceCpp('../bfl.cpp') 
+library(cghFLasso)
+library(plotrix)
 library(foreach)
 library(doParallel)
 library(Rcpp)
 library(RcppDist)
 source("Covariance_gene.R")
 ################################Initialization
-data(bardet)
-group_size <- rep(5, 20)
-X.raw <- bardet$x
-Y.raw <- bardet$y
-n <- dim(X.raw)[1]
-p <- dim(X.raw)[2]
-X <- scale(X.raw)*sqrt(n/(n-1))
-X <- matrix(as.vector(X),n,p)
-Y <- Y.raw-mean(Y.raw)
+data(CGH)
+Y <- CGH$GBM.y[1:200]
+n <- length(Y)
+q <- n
+X <- diag(q)
 
 N = 5e5
 nloops <- 10
@@ -32,11 +27,13 @@ n.cores <- 50
 doParallel::registerDoParallel(cores = n.cores)
 
 
-
+Table = list()
 # For loop for getting ESS and norm values corresponding to different chain sizes
-Table = foreach(b=1:B, .packages = c("mcmcse"))%dopar%{
+for(b in 1:B){
+#Table = foreach(b=1:B, .packages = c("mcmcse"))%dopar%{
   #if(b %% 1 ==0) print(b)
-  chain <- bgl(X, Y,group_size, rep(1,p), 1, lambda = 0.0601 ,K = N)$beta
+  dat <-  bfl(X, Y, rep(1,q)+rnorm(q), 1, lambda1 = .129, lambda2 = .962, K = N)
+  chain <- cbind(dat$beta, dat$sigma2)
   combine = list()
   for(j in 1:length(subsize)){
     print(j)
@@ -54,7 +51,7 @@ Table = foreach(b=1:B, .packages = c("mcmcse"))%dopar%{
 
     combine = append(combine, list(ess_list, time_list))
   }
-  combine
+  Table[[b]] = combine
 }
   
 save(Table, subsize, nloops, B, file = "final_data.Rdata")
