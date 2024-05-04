@@ -98,6 +98,7 @@ add_legend <- function(...) {
 ess_true <- (det(true.sig.gen(p = p, omega = omega, phi = phi)$tar.var)/det(true.sig.gen(p = p, omega = omega, phi = phi)$final.cov))^(1/p)
 ess_true
 nloops = length(subsize)
+names = subsize
 
 ess_track_bm = matrix(0, nrow = B, ncol = nloops)
 ess_track_ise = matrix(0, nrow = B, ncol = nloops)
@@ -127,13 +128,13 @@ se_ess_cc <- apply(ess_track_cc, 2, sd)/sqrt(B)
 se_ess_sve <- apply(ess_track_sve, 2, sd)/sqrt(B)
 se_ess_mls <- apply(ess_track_mls, 2, sd)/sqrt(B)
 
-subsize = log(subsize)/log(10)
+#subsize = log(subsize)/log(10)
 
 
-pdf("ess.pdf", height = 6, width = 6)
+pdf("VAR_ess.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
-plot(subsize, colMeans(ess_track_bm), type = "l", xlab = "Log chain length",
-   ylim = c(0.020, 0.040), ylab = "ESS/n")
+plot(subsize, colMeans(ess_track_bm), type = "l", xlab = "Chain length",
+   ylim = c(0.020, 0.040), log = 'x',  ylab = "ESS/n")
 segments(x0 = subsize, y0 = colMeans(ess_track_bm) - 1.96*se_ess_bm, 
   y1 = colMeans(ess_track_bm) + 1.96*se_ess_bm)
 
@@ -153,8 +154,8 @@ lines(subsize, colMeans(ess_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
   y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
 abline(h = ess_true, lty = 2)
-legend("topright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS", "True"), 
-  col = c("black", "purple", "red", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
+legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS", "True"), 
+  col = c("black",  "red", "skyblue", "purple", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
 
 dev.off()
 
@@ -205,13 +206,13 @@ se_norm_cc <- apply(norm_track_cc, 2, sd)/sqrt(B)
 se_norm_sve <- apply(norm_track_sve, 2, sd)/sqrt(B)
 se_norm_mls <- apply(norm_track_mls, 2, sd)/sqrt(B)
 
-subsize = log(subsize)/log(10)
+#subsize = log(subsize)/log(10)
 
 
-pdf("Frobenius Norm.pdf", height = 6, width = 6)
+pdf("VAR_Frob.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
-plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Log chain length",
-  ylim = c(4000, 11000), ylab = "Frobenius norm")
+plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Chain length",
+  ylim = c(4000, 11000), log = 'x', ylab = "Frobenius norm")
 segments(x0 = subsize, y0 = colMeans(norm_track_bm) - 1.96*se_norm_bm, 
   y1 = colMeans(norm_track_bm) + 1.96*se_norm_bm)
 
@@ -231,8 +232,8 @@ lines(subsize, colMeans(norm_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
   y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
 abline(h = true_norm, lty = 2)
-legend("bottomright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS", "True"), 
-  col = c("black", "purple", "red", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
+legend("bottomright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS", "True"), 
+  col = c("black",  "red", "skyblue", "purple", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
 
 dev.off()
 
@@ -284,13 +285,13 @@ se_bias_sve <- apply(bias_track_sve, 2, sd)/sqrt(B)
 se_bias_mls <- apply(bias_track_mls, 2, sd)/sqrt(B)
 
 
-subsize = log(subsize)/log(10)
+#subsize = log(subsize)/log(10)
 
 
-pdf("abs_eigen_bias.pdf", height = 6, width = 6)
+pdf("VAR_eigen_bias.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
-plot(subsize, colMeans(bias_track_bm), type = "l", xlab = "Log chain length",
-  ylim = c(0, 6000), ylab = "Absolute max error of Eigen values")
+plot(subsize, colMeans(bias_track_bm), type = "l", xlab = "Chain length",
+  ylim = c(0, 6000), log = 'x', ylab = "Absolute max error of Eigen values")
 segments(x0 = subsize, y0 = colMeans(bias_track_bm) - 1.96*se_bias_bm, 
   y1 = colMeans(bias_track_bm) + 1.96*se_bias_bm)
 
@@ -310,8 +311,8 @@ lines(subsize, colMeans(bias_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(bias_track_mls) - 1.96*se_bias_mls, 
   y1 = colMeans(bias_track_mls) + 1.96*se_bias_mls, col = "brown")
 
-legend("topright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "CC - MLS", "SVE"), 
-  col = c("black", "purple", "red", "brown", "skyblue"), lty = 1, cex=0.75)
+legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS"), 
+  col = c("black",  "red", "brown", "purple","skyblue"), lty = 1, cex=0.75)
 
 dev.off()
 
@@ -382,12 +383,12 @@ add_legend <- function(...) {
   legend(...)
 }
 
-subsize = log(subsize)/log(10)
+#subsize = log(subsize)/log(10)
 
-pdf("Computational_time.pdf", height = 6, width = 6)
+pdf("VAR_comptime.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
-plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Log chain length",
-  ylim = c(0, 80), ylab = "Computational Time")
+plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Chain length",
+  ylim = c(0, 80), log = 'x', ylab = "Computational Time (sec)")
 segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
 
@@ -407,14 +408,62 @@ lines(subsize, colMeans(time_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(time_track_mls) - 1.96*se_time_mls, 
   y1 = colMeans(time_track_mls) + 1.96*se_time_mls, col = "brown")
 
-legend("topleft", bty = "n",legend = c("BM", "CC - ISE", "ISE", "CC - MLS", "SVE"), 
-  col = c("black", "purple", "red", "brown", "skyblue"), lty = 1, cex=0.75)
+legend("topleft", bty = "n",legend = c("BM", "ISE",  "SVE", "CC - ISE", "CC - MLS"), 
+  col = c("black",  "red",  "skyblue","purple","brown"), lty = 1, cex=0.75)
 
 dev.off()
 
 
 
+############################################################
+##Computational Time Plot#################################### 
+
+source("../VAR_func.R")
+source("../Asymp_var.R")
+
+load("dat_matices.Rdata")
+
+nloops = length(subsize)
+
+add_legend <- function(...) {
+  opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
+    mar=c(0, 0, 0, 0), new=TRUE)
+  on.exit(par(opar))
+  plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+  legend(...)
+}
+
+Trunc_ise = matrix(0, nrow = B, ncol = nloops)
+Trunc_cc = matrix(0, nrow = B, ncol = nloops)
+
+for(i in 1:B){
+  for(j in 1:nloops){
+    Trunc_ise[i,j] = log(subsize[j]*(cover[[i]]$Truncation[j,1])*(p*p))
+    Trunc_cc[i,j] = log(subsize[j]*log(subsize[j])*p)
+  }
+}
+
+se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
+se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 
 
+pdf("VAR_theoretical_complexity.pdf", height = 6, width = 6)
+par(mar = c(5.1, 4.8, 4.1, 2.1))
+
+plot(subsize, colMeans(Trunc_ise), type = "l", xlab = "Chain length",
+   ylim = c(10, 25), ylab = "Log Theoretical Complexity", col = "red")
+segments(x0 = subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
+  y1 = colMeans(Trunc_ise) + 1.96*se_ise, col = "red")
+
+lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
+   ylab = "Theoretical Time/(n d)", col = "purple")
+segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
+  y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
+
+legend("bottomright", bty = "n",legend = c("ISE complexity", "CC-Geyer complexity"), 
+  col = c("red", "purple"), lty = 1, cex=0.75)
+
+
+dev.off()
 
 

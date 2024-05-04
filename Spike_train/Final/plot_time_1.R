@@ -29,13 +29,13 @@ se_time_cc <- apply(cc_time, 2, sd)/sqrt(repet)
 se_time_sve <- apply(sve_time, 2, sd)/sqrt(repet)
 se_time_mls <- apply(mls_time, 2, sd)/sqrt(repet)
 
-N = log(N)/log(10)
+#N = log(N)/log(10)
 
 
-pdf("plot_time_spike.pdf", height = 6, width = 6)
+pdf("Calcium_spike_comptime.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
-plot(N, colMeans(bm_time),col = "black", xlab = "Log chain Length", ylab = "Computational time", 
-	ylim = c(0, 250), type = "l")
+plot(N, colMeans(bm_time),col = "black", xlab = "Chain Length", ylab = "Computational time (sec)", 
+	ylim = c(0, 250), log = 'x', type = "l")
 segments(x0 = N, y0 = colMeans(bm_time) - 1.96*se_time_bm, 
 	y1 = colMeans(bm_time) + 1.96*se_time_bm)
 
@@ -55,8 +55,8 @@ lines(N, colMeans(mls_time), col = "brown", lty = 1)
 segments(x0 = N, y0 = colMeans(mls_time) - 1.96*se_time_mls, 
 	y1 = colMeans(mls_time) + 1.96*se_time_mls, col = "brown")
 
-legend("topleft",legend = c("BM", "SVE", "CC - ISE", "ISE", "CC - MLS"),
- col = c("black", "skyblue", "purple", "red", "brown"), cex = 0.8,lty = 1)
+legend("topleft",legend = c("BM", "SVE",  "ISE", "CC - ISE","CC - MLS"),
+ col = c("black", "skyblue",  "red", "purple","brown"), cex = 0.8,lty = 1)
 dev.off()
 
 #####################################################################
@@ -97,12 +97,12 @@ se_ess_cc <- apply(cc_ess, 2, sd)/sqrt(repet)
 se_ess_ise <- apply(sve_ess, 2, sd)/sqrt(repet)
 se_ess_mls <- apply(mls_ess, 2, sd)/sqrt(repet)
 
-N = log(N)/log(10)
+#N = log(N)/log(10)
 
-pdf("plot_ess_spike.pdf", height = 6, width = 6)
+pdf("Calcium_spike_ess.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
 plot(N, colMeans(bm_ess),col = "black", xlab = "Chain Length", ylab = "ESS/n", 
-	ylim = c(0.05, 0.1), type = "l")
+	ylim = c(0.05, 0.1), log = 'x', type = "l")
 segments(x0 = N, y0 = colMeans(bm_ess) - 1.96*se_ess_bm, 
 	y1 = colMeans(bm_ess) + 1.96*se_ess_bm)
 
@@ -123,6 +123,6 @@ segments(x0 = N, y0 = colMeans(mls_ess) - 1.96*se_ess_mls,
 	y1 = colMeans(mls_ess) + 1.96*se_ess_mls, col = "brown")
 
 #abline(h = 0, lty = 2)
-legend("topright",legend = c("BM", "SVE", "CC - ISE", "ISE", "CC - MLS"),
- col = c("black", "skyblue", "purple", "red", "brown"), cex = 0.8,lty = 1)
+legend("topright",legend = c("BM", "SVE", "ISE", "CC - ISE", "CC - MLS"),
+ col = c("black", "skyblue", "red", "purple", "brown"), cex = 0.8,lty = 1)
 dev.off()

@@ -16,7 +16,7 @@ coverage <- function(subsize, phi, omega, level = .90){
 	time = matrix(0, nrow = length(subsize), ncol = 5)
 	est = list()
 	ess = list()
-	trunc_ise = numeric(length = length(subsize))
+	trunc_ise = matrix(0, nrow = length(subsize), ncol = 2)
 	chain = var1(p = p, phi = phi, nsim = max(subsize), omega = omega)
 
 	for (i in 1:length(subsize)) {
@@ -33,7 +33,7 @@ coverage <- function(subsize, phi, omega, level = .90){
 		
 		time[i,5] = system.time(mls_est <- cov.sig(minichain, type = "MomentLS"))[3]
 
-		trunc_ise[i] = ise_est$trunc
+		trunc_ise[i,] = c(ise_est$trunc, max(cc_est$stopping_lag))
 
 		bm_est = bm_est$cov
 		ise_est = ise_est$Sig

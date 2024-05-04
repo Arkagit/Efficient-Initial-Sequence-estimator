@@ -1,6 +1,6 @@
 
-R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
-Copyright (C) 2022 The R Foundation for Statistical Computing
+R version 4.3.3 (2024-02-29) -- "Angel Food Cake"
+Copyright (C) 2024 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -71,25 +71,25 @@ Type 'q()' to quit R.
 > se_time_mls <- apply(time_track_mls, 2, sd)/sqrt(B)
 > chart;time
          BM   ISE New ISE (Geyer)   SVE New ISE (MLS)
-5000  0.474 0.651           0.715 0.589         0.623
-8000  0.608 0.754           0.828 0.699         0.771
-10000 0.664 0.778           0.883 0.751         0.824
-30000 0.823 0.875           0.954 0.862         0.928
-50000 0.883 0.906           0.948 0.896         0.936
-80000 0.887 0.920           0.956 0.911         0.945
-1e+05 0.887 0.922           0.962 0.913         0.944
-3e+05 0.917 0.942           0.968 0.934         0.955
-5e+05 0.952 0.962           0.974 0.960         0.971
+5000  0.436 0.613           0.704 0.535         0.611
+8000  0.594 0.715           0.832 0.667         0.761
+10000 0.661 0.776           0.869 0.744         0.821
+30000 0.822 0.875           0.943 0.868         0.915
+50000 0.865 0.913           0.960 0.905         0.949
+80000 0.884 0.915           0.959 0.907         0.946
+1e+05 0.892 0.913           0.953 0.910         0.945
+3e+05 0.913 0.927           0.952 0.923         0.938
+5e+05 0.924 0.937           0.961 0.933         0.949
             [,1]       [,2]       [,3]        [,4]       [,5]
- [1,] -2.0835960 -0.7658239 -1.6078294 -1.75924071 0.09803004
- [2,] -1.9990196 -0.4743825 -1.4498238 -1.61698221 0.11073063
- [3,] -1.9413049 -0.3372605 -1.3766995 -1.53421812 0.11983666
- [4,] -1.5851137  0.3147270 -0.9166704 -1.08924802 0.20948218
- [5,] -1.3924317  0.6041223 -0.6531526 -0.84973643 0.28802032
- [6,] -1.3262725  0.8685284 -0.4481812 -0.56484125 0.38326558
- [7,] -1.2941175  0.9896937 -0.3421536 -0.50053259 0.44259982
- [8,] -1.0458608  1.5790377  0.3229240  0.09314563 0.91973777
- [9,] -0.8857101  1.8392438  0.5861310  0.33271380 1.18194004
+ [1,] -2.0907555 -0.7700876 -1.6091087 -1.76677989 0.09215394
+ [2,] -2.0091427 -0.4739837 -1.4523217 -1.62383111 0.10574681
+ [3,] -1.9517689 -0.3340704 -1.3793013 -1.54128426 0.11530485
+ [4,] -1.5980344  0.3147007 -0.9204954 -1.09615852 0.20414817
+ [5,] -1.4053472  0.6065774 -0.6562340 -0.85424476 0.28237698
+ [6,] -1.3415588  0.8646050 -0.4516272 -0.57012975 0.37872563
+ [7,] -1.3093697  0.9866084 -0.3397413 -0.49762297 0.44231206
+ [8,] -1.0579157  1.5709381  0.3261352  0.09525751 0.92134792
+ [9,] -0.9001876  1.8356158  0.5870619  0.33309914 1.18241720
 > 
 > 
 > 
@@ -140,6 +140,7 @@ null device
 > ess_true
 [1] 0.02630116
 > nloops = length(subsize)
+> names = subsize
 > 
 > ess_track_bm = matrix(0, nrow = B, ncol = nloops)
 > ess_track_ise = matrix(0, nrow = B, ncol = nloops)
@@ -169,13 +170,13 @@ null device
 > se_ess_sve <- apply(ess_track_sve, 2, sd)/sqrt(B)
 > se_ess_mls <- apply(ess_track_mls, 2, sd)/sqrt(B)
 > 
-> subsize = log(subsize)/log(10)
+> #subsize = log(subsize)/log(10)
 > 
 > 
-> pdf("ess.pdf", height = 6, width = 6)
+> pdf("VAR_ess.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
-> plot(subsize, colMeans(ess_track_bm), type = "l", xlab = "Log chain length",
-+    ylim = c(0.020, 0.040), ylab = "ESS/n")
+> plot(subsize, colMeans(ess_track_bm), type = "l", xlab = "Chain length",
++    ylim = c(0.020, 0.040), log = 'x',  ylab = "ESS/n")
 > segments(x0 = subsize, y0 = colMeans(ess_track_bm) - 1.96*se_ess_bm, 
 +   y1 = colMeans(ess_track_bm) + 1.96*se_ess_bm)
 > 
@@ -195,8 +196,8 @@ null device
 > segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
 +   y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
 > abline(h = ess_true, lty = 2)
-> legend("topright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS", "True"), 
-+   col = c("black", "purple", "red", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
+> legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS", "True"), 
++   col = c("black",  "red", "skyblue", "purple", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
 > 
 > dev.off()
 null device 
@@ -250,13 +251,13 @@ null device
 > se_norm_sve <- apply(norm_track_sve, 2, sd)/sqrt(B)
 > se_norm_mls <- apply(norm_track_mls, 2, sd)/sqrt(B)
 > 
-> subsize = log(subsize)/log(10)
+> #subsize = log(subsize)/log(10)
 > 
 > 
-> pdf("Frobenius Norm.pdf", height = 6, width = 6)
+> pdf("VAR_Frob.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
-> plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Log chain length",
-+   ylim = c(4000, 11000), ylab = "Frobenius norm")
+> plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Chain length",
++   ylim = c(4000, 11000), log = 'x', ylab = "Frobenius norm")
 > segments(x0 = subsize, y0 = colMeans(norm_track_bm) - 1.96*se_norm_bm, 
 +   y1 = colMeans(norm_track_bm) + 1.96*se_norm_bm)
 > 
@@ -276,8 +277,8 @@ null device
 > segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
 +   y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
 > abline(h = true_norm, lty = 2)
-> legend("bottomright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS", "True"), 
-+   col = c("black", "purple", "red", "skyblue", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
+> legend("bottomright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS", "True"), 
++   col = c("black",  "red", "skyblue", "purple", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
 > 
 > dev.off()
 null device 
@@ -331,13 +332,13 @@ null device
 > se_bias_mls <- apply(bias_track_mls, 2, sd)/sqrt(B)
 > 
 > 
-> subsize = log(subsize)/log(10)
+> #subsize = log(subsize)/log(10)
 > 
 > 
-> pdf("abs_eigen_bias.pdf", height = 6, width = 6)
+> pdf("VAR_eigen_bias.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
-> plot(subsize, colMeans(bias_track_bm), type = "l", xlab = "Log chain length",
-+   ylim = c(0, 6000), ylab = "Absolute max error of Eigen values")
+> plot(subsize, colMeans(bias_track_bm), type = "l", xlab = "Chain length",
++   ylim = c(0, 6000), log = 'x', ylab = "Absolute max error of Eigen values")
 > segments(x0 = subsize, y0 = colMeans(bias_track_bm) - 1.96*se_bias_bm, 
 +   y1 = colMeans(bias_track_bm) + 1.96*se_bias_bm)
 > 
@@ -357,8 +358,8 @@ null device
 > segments(x0 = subsize, y0 = colMeans(bias_track_mls) - 1.96*se_bias_mls, 
 +   y1 = colMeans(bias_track_mls) + 1.96*se_bias_mls, col = "brown")
 > 
-> legend("topright", bty = "n",legend = c("BM", "CC - ISE", "ISE", "CC - MLS", "SVE"), 
-+   col = c("black", "purple", "red", "brown", "skyblue"), lty = 1, cex=0.75)
+> legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS"), 
++   col = c("black",  "red", "brown", "purple","skyblue"), lty = 1, cex=0.75)
 > 
 > dev.off()
 null device 
@@ -420,25 +421,25 @@ null device
 > se_time_mls <- apply(time_track_mls, 2, sd)/sqrt(B)
 > chart;time
          BM   ISE New ISE (Geyer)   SVE New ISE (MLS)
-5000  0.474 0.651           0.715 0.589         0.623
-8000  0.608 0.754           0.828 0.699         0.771
-10000 0.664 0.778           0.883 0.751         0.824
-30000 0.823 0.875           0.954 0.862         0.928
-50000 0.883 0.906           0.948 0.896         0.936
-80000 0.887 0.920           0.956 0.911         0.945
-1e+05 0.887 0.922           0.962 0.913         0.944
-3e+05 0.917 0.942           0.968 0.934         0.955
-5e+05 0.952 0.962           0.974 0.960         0.971
+5000  0.436 0.613           0.704 0.535         0.611
+8000  0.594 0.715           0.832 0.667         0.761
+10000 0.661 0.776           0.869 0.744         0.821
+30000 0.822 0.875           0.943 0.868         0.915
+50000 0.865 0.913           0.960 0.905         0.949
+80000 0.884 0.915           0.959 0.907         0.946
+1e+05 0.892 0.913           0.953 0.910         0.945
+3e+05 0.913 0.927           0.952 0.923         0.938
+5e+05 0.924 0.937           0.961 0.933         0.949
             [,1]       [,2]       [,3]        [,4]       [,5]
- [1,] -2.0835960 -0.7658239 -1.6078294 -1.75924071 0.09803004
- [2,] -1.9990196 -0.4743825 -1.4498238 -1.61698221 0.11073063
- [3,] -1.9413049 -0.3372605 -1.3766995 -1.53421812 0.11983666
- [4,] -1.5851137  0.3147270 -0.9166704 -1.08924802 0.20948218
- [5,] -1.3924317  0.6041223 -0.6531526 -0.84973643 0.28802032
- [6,] -1.3262725  0.8685284 -0.4481812 -0.56484125 0.38326558
- [7,] -1.2941175  0.9896937 -0.3421536 -0.50053259 0.44259982
- [8,] -1.0458608  1.5790377  0.3229240  0.09314563 0.91973777
- [9,] -0.8857101  1.8392438  0.5861310  0.33271380 1.18194004
+ [1,] -2.0907555 -0.7700876 -1.6091087 -1.76677989 0.09215394
+ [2,] -2.0091427 -0.4739837 -1.4523217 -1.62383111 0.10574681
+ [3,] -1.9517689 -0.3340704 -1.3793013 -1.54128426 0.11530485
+ [4,] -1.5980344  0.3147007 -0.9204954 -1.09615852 0.20414817
+ [5,] -1.4053472  0.6065774 -0.6562340 -0.85424476 0.28237698
+ [6,] -1.3415588  0.8646050 -0.4516272 -0.57012975 0.37872563
+ [7,] -1.3093697  0.9866084 -0.3397413 -0.49762297 0.44231206
+ [8,] -1.0579157  1.5709381  0.3261352  0.09525751 0.92134792
+ [9,] -0.9001876  1.8356158  0.5870619  0.33309914 1.18241720
 > 
 > 
 > 
@@ -451,12 +452,12 @@ null device
 +   legend(...)
 + }
 > 
-> subsize = log(subsize)/log(10)
+> #subsize = log(subsize)/log(10)
 > 
-> pdf("Computational_time.pdf", height = 6, width = 6)
+> pdf("VAR_comptime.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
-> plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Log chain length",
-+   ylim = c(0, 80), ylab = "Computational Time")
+> plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Chain length",
++   ylim = c(0, 80), log = 'x', ylab = "Computational Time (sec)")
 > segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
 +   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
 > 
@@ -476,8 +477,8 @@ null device
 > segments(x0 = subsize, y0 = colMeans(time_track_mls) - 1.96*se_time_mls, 
 +   y1 = colMeans(time_track_mls) + 1.96*se_time_mls, col = "brown")
 > 
-> legend("topleft", bty = "n",legend = c("BM", "CC - ISE", "ISE", "CC - MLS", "SVE"), 
-+   col = c("black", "purple", "red", "brown", "skyblue"), lty = 1, cex=0.75)
+> legend("topleft", bty = "n",legend = c("BM", "ISE",  "SVE", "CC - ISE", "CC - MLS"), 
++   col = c("black",  "red",  "skyblue","purple","brown"), lty = 1, cex=0.75)
 > 
 > dev.off()
 null device 
@@ -485,11 +486,61 @@ null device
 > 
 > 
 > 
+> ############################################################
+> ##Computational Time Plot#################################### 
+> 
+> source("../VAR_func.R")
+> source("../Asymp_var.R")
+> 
+> load("dat_matices.Rdata")
+> 
+> nloops = length(subsize)
+> 
+> add_legend <- function(...) {
++   opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
++     mar=c(0, 0, 0, 0), new=TRUE)
++   on.exit(par(opar))
++   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
++   legend(...)
++ }
+> 
+> Trunc_ise = matrix(0, nrow = B, ncol = nloops)
+> Trunc_cc = matrix(0, nrow = B, ncol = nloops)
+> 
+> for(i in 1:B){
++   for(j in 1:nloops){
++     Trunc_ise[i,j] = log(subsize[j]*(cover[[i]]$Truncation[j,1])*(p*p))
++     Trunc_cc[i,j] = log(subsize[j]*log(subsize[j])*p)
++   }
++ }
+> 
+> se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
+> se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 > 
 > 
+> pdf("VAR_theoretical_complexity.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> 
+> plot(subsize, colMeans(Trunc_ise), type = "l", xlab = "Chain length",
++    ylim = c(10, 25), ylab = "Log Theoretical Complexity", col = "red")
+> segments(x0 = subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
++   y1 = colMeans(Trunc_ise) + 1.96*se_ise, col = "red")
+> 
+> lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
++    ylab = "Theoretical Time/(n d)", col = "purple")
+> segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
++   y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
+> 
+> legend("bottomright", bty = "n",legend = c("ISE complexity", "CC-Geyer complexity"), 
++   col = c("red", "purple"), lty = 1, cex=0.75)
+> 
+> 
+> dev.off()
+null device 
+          1 
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
- 26.256   0.295  26.600 
+ 26.706   0.369  27.061 
