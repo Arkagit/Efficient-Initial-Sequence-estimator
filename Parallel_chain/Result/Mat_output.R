@@ -17,7 +17,7 @@ subsize <- c(5e2, 8e2, 1e3, 3e3, 5e4, 8e3, 1e4)
 
 N = max(subsize)
 
-chain_val = 1
+#chain_val = 1
 
 true_var = true.sig.gen(p, omega, phi)$final.cov
 
@@ -63,4 +63,4 @@ Estimate = foreach(b = 1:B, .packages = c("mcmcse"))%dopar%{
 	result
 }
 
-save(Estimate, B, M, N, subsize, chain_val, file = "parallel_est.Rdata")
+save(Estimate, B, M, N, subsize, file = "parallel_est.Rdata")

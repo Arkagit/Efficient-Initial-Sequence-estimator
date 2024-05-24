@@ -66,8 +66,11 @@ parallel_stan = function(par_chain, M, N){
 parallel_stan_sig = function(par_chain, M, N){
 	
 	sigma = sqrt(parallel_stan(par_chain, M, N))
-	dat = par_chain[[chain_val]]
-	bm = mcse.multi(dat, method = "bm", r = 1, adjust = FALSE)$cov
+	bm = matrix(0, nrow = p, ncol = p)
+	for(i3 in 1:M){
+		dat = par_chain[[i3]]
+		bm = bm + mcse.multi(dat, method = "bm", r = 1, adjust = FALSE)$cov/M
+	}
 	est = diag(sigma)%*%cov2cor(bm)%*%diag(sigma)
 	return(est)
 }

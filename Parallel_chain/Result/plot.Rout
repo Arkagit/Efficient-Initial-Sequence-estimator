@@ -1,7 +1,7 @@
 
-R version 4.3.3 (2024-02-29) -- "Angel Food Cake"
+R version 4.4.0 (2024-04-24) -- "Puppy Cup"
 Copyright (C) 2024 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -70,16 +70,16 @@ Type 'q()' to quit R.
 > colnames(final_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_ess
                        M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.02124214 0.02051798 0.01970713 0.01955377
-STAN              0.02189871 0.02214975 0.02165502 0.02186568
+Globally Centered 0.02115502 0.02013142 0.01974886 0.01948367
+STAN              0.02029527 0.01980873 0.01970786 0.01953483
 > 
 > sd_mat_ess = matrix(c(sd_ess_glob, sd_ess_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_ess) = c("Globally Centered", "STAN")
 > colnames(sd_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_ess
                         M = 2       M = 4       M = 8      M = 16
-Globally Centered 0.002501123 0.001818617 0.001428744 0.001096377
-STAN              0.003807326 0.002905277 0.002727992 0.003025665
+Globally Centered 0.001966784 0.001626795 0.001174544 0.001042576
+STAN              0.002361957 0.001831325 0.001256270 0.001093409
 > 
 > 
 > ############################################
@@ -93,8 +93,8 @@ STAN              0.003807326 0.002905277 0.002727992 0.003025665
 > for(i in 1:B){
 +   for(j in 1:length(subsize)){
 +     for(k in 1:length(M)){
-+       frob_track_glob[i,j,k] = norm(Truth - Estimate[[i]][[j]][[1]][[k]], type = "F")
-+       frob_track_stan[i,j,k] = norm(Truth - Estimate[[i]][[j]][[2]][[k]], type = "F")
++       frob_track_glob[i,j,k] = norm(Truth - Estimate[[i]][[j]][[1]][[k]], type = "F")/norm(Truth, type = "F")
++       frob_track_stan[i,j,k] = norm(Truth - Estimate[[i]][[j]][[2]][[k]], type = "F")/norm(Truth, type = "F")
 +     }
 +   }
 + }
@@ -120,18 +120,52 @@ STAN              0.003807326 0.002905277 0.002727992 0.003025665
 > rownames(final_mat_frob) = c("Globally Centered", "STAN")
 > colnames(final_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_frob
-                     M = 2    M = 4    M = 8   M = 16
-Globally Centered 3244.169 2550.244 2095.909 1878.264
-STAN              4659.604 3037.572 2720.619 2526.359
+                      M = 2     M = 4     M = 8    M = 16
+Globally Centered 0.2892617 0.2384859 0.1991964 0.1728937
+STAN              0.3336514 0.2592067 0.2025104 0.1758457
 > 
 > sd_mat_frob = matrix(c(sd_frob_glob, sd_frob_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_frob) = c("Globally Centered", "STAN")
 > colnames(sd_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_frob
-                     M = 2     M = 4    M = 8   M = 16
-Globally Centered 1023.652  757.5985 640.7516 461.2285
-STAN              4944.254 1039.5630 914.8641 838.8003
+                       M = 2      M = 4      M = 8     M = 16
+Globally Centered 0.09107693 0.07504983 0.05399826 0.04108417
+STAN              0.19672663 0.15105350 0.05549433 0.04159244
+> 
+> #################### boxplot ##############
+> 
+> boxplot(frob_track_glob[,7,i])
+> 
+> plot(frob_track_glob[,7,i])
+> 
+> df = data.frame(
++   id = c(rep("global", B), rep("stan", B)),
++   "2" = c(frob_track_glob[,7,1], frob_track_stan[,7,1]),
++   "4" = c(frob_track_glob[,7,2], frob_track_stan[,7,2]),
++   "8" = c(frob_track_glob[,7,3], frob_track_stan[,7,3]),
++   "16" = c(frob_track_glob[,7,4], frob_track_stan[,7,4]))
+> 
+> 
+> pdf("Boxplot.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> 
+> boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains", 
++   ylab = "Relative Frobenius Norm", ylim = c(0, 1)) #invisible boxes - only axes and plot area
+> boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
++   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
+> boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
++   boxwex=0.25, at = 1:ncol(df[,-1]) + 0.15) #shift to the right by +0.15
+> legend("topright", legend = c("Globally Centered", "STAN"), 
++        fill = c("cadetblue1", "firebrick1"), border = "black")
+> dev.off()
+pdf 
+  2 
+> 
+> 
+> 
+> 
+> 
 > 
 > proc.time()
    user  system elapsed 
-  0.593   0.043   0.623 
+  0.620   0.076   0.683 
