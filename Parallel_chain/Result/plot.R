@@ -67,8 +67,8 @@ frob_track_stan = array(0, dim = c(B, length(subsize), length(M)))
 for(i in 1:B){
   for(j in 1:length(subsize)){
     for(k in 1:length(M)){
-      frob_track_glob[i,j,k] = norm(Estimate[[i]][[j]][[1]][[k]], type = "F")
-      frob_track_stan[i,j,k] = norm(Estimate[[i]][[j]][[2]][[k]], type = "F")
+      frob_track_glob[i,j,k] = norm(Truth - Estimate[[i]][[j]][[1]][[k]], type = "F")/norm(Truth, type = "F")
+      frob_track_stan[i,j,k] = norm(Truth - Estimate[[i]][[j]][[2]][[k]], type = "F")/norm(Truth, type = "F")
     }
   }
 }
@@ -118,7 +118,7 @@ pdf("Boxplot.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
 boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains", 
-  ylab = "Frobenius Norm", ylim = c(5000, 18000)) #invisible boxes - only axes and plot area
+  ylab = "Relative Frobenius Norm", ylim = c(0, 1)) #invisible boxes - only axes and plot area
 boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
 boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 

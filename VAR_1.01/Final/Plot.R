@@ -175,7 +175,8 @@ add_legend <- function(...) {
 }
 
 true_norm <- norm(true.sig.gen(p = p, omega = omega, phi = phi)$final.cov, type = "F")
-true_norm
+Truth <- true.sig.gen(p = p, omega = omega, phi = phi)$final.cov
+
 nloops = length(subsize)
 
 norm_track_bm = matrix(0, nrow = B, ncol = nloops)
@@ -192,11 +193,11 @@ se_norm_mls <- numeric(length(subsize))
 
 for(i in 1:B){
   for(j in 1:nloops){
-    norm_track_bm[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 1]], type = "F")
-    norm_track_ise[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 2]], type = "F")
-    norm_track_cc[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 3]], type = "F")
-    norm_track_sve[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 4]], type = "F")
-    norm_track_mls[i,j] = norm(cover[[i]]$estimates[[5*(j-1) + 5]], type = "F")
+    norm_track_bm[i,j] = norm(Truth - cover[[i]]$estimates[[5*(j-1) + 1]], type = "F")/norm(Truth, type = "F")
+    norm_track_ise[i,j] = norm(Truth - cover[[i]]$estimates[[5*(j-1) + 2]], type = "F")/norm(Truth, type = "F")
+    norm_track_cc[i,j] = norm(Truth - cover[[i]]$estimates[[5*(j-1) + 3]], type = "F")/norm(Truth, type = "F")
+    norm_track_sve[i,j] = norm(Truth - cover[[i]]$estimates[[5*(j-1) + 4]], type = "F")/norm(Truth, type = "F")
+    norm_track_mls[i,j] = norm(Truth - cover[[i]]$estimates[[5*(j-1) + 5]], type = "F")/norm(Truth, type = "F")
   }
 }
 
@@ -212,7 +213,7 @@ se_norm_mls <- apply(norm_track_mls, 2, sd)/sqrt(B)
 pdf("VAR_Frob.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Chain length",
-  ylim = c(4000, 11000), log = 'x', ylab = "Frobenius norm")
+  ylim = c(0, 0.6), log = 'x', ylab = "Frobenius norm")
 segments(x0 = subsize, y0 = colMeans(norm_track_bm) - 1.96*se_norm_bm, 
   y1 = colMeans(norm_track_bm) + 1.96*se_norm_bm)
 
@@ -231,9 +232,9 @@ segments(x0 = subsize, y0 = colMeans(norm_track_sve) - 1.96*se_norm_sve,
 lines(subsize, colMeans(norm_track_mls), col = "brown")
 segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
   y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
-abline(h = true_norm, lty = 2)
-legend("bottomright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS", "True"), 
-  col = c("black",  "red", "skyblue", "purple", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.75)
+#abline(h = true_norm, lty = 2)
+legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS"), 
+  col = c("black",  "red", "skyblue", "purple", "brown"), lty = c(1,1,1,1,1), cex=0.75)
 
 dev.off()
 
