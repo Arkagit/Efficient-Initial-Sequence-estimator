@@ -213,7 +213,7 @@ se_norm_mls <- apply(norm_track_mls, 2, sd)/sqrt(B)
 pdf("VAR_Frob.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Chain length",
-  ylim = c(0, 0.6), log = 'x', ylab = "Frobenius norm")
+  ylim = c(0, 0.6), log = 'x', ylab = "Relative Frobenius norm")
 segments(x0 = subsize, y0 = colMeans(norm_track_bm) - 1.96*se_norm_bm, 
   y1 = colMeans(norm_track_bm) + 1.96*se_norm_bm)
 
