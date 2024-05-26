@@ -34,11 +34,24 @@ parallel_gacf = function(par_chain, M, ch_l){
 parallel_sig = function(par_chain, M, ch_l){
 	
 	sigma = sqrt(parallel_gacf(par_chain, M, ch_l))
-	bm = matrix(0, nrow = p, ncol = p)
+	bs = numeric(length = M)
+
 	for(i3 in 1:M){
-		dat = par_chain[[i3]]
-		bm = bm + mcse.multi(dat, method = "bm", r = 1, adjust = FALSE)$cov/M
+		bs = batchSize(par_chain[[i3]])
 	}
+
+	final.b = floor(mean(bs))
+
+	n.batches = floor(N/final.b)
+
+	final.data = par_chain[[1]][(N - final.b*n.batches + 1):N, ]
+
+	for(i3 in 2:M){
+		final.data = rbind(final.data, par_chain[[i3]][(N - final.b*n.batches + 1):N, ])
+	}
+
+	bm = mcse.multi(final.data, method = "bm", r = 1, adjust = FALSE, size = final.b)$cov
+
 	est = diag(sigma)%*%cov2cor(bm)%*%diag(sigma)
 	return(est)
 }

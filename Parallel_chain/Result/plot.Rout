@@ -1,3 +1,5 @@
+WARNING: unknown option '-vanilla'
+
 
 R version 4.4.0 (2024-04-24) -- "Puppy Cup"
 Copyright (C) 2024 The R Foundation for Statistical Computing
@@ -16,6 +18,8 @@ Type 'contributors()' for more information and
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
+
+[Previously saved workspace restored]
 
 > set.seed(100)
 > 
@@ -70,16 +74,16 @@ Type 'q()' to quit R.
 > colnames(final_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_ess
                        M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.02115502 0.02013142 0.01974886 0.01948367
-STAN              0.02029527 0.01980873 0.01970786 0.01953483
+Globally Centered 0.02118518 0.02032116 0.01976383 0.01960857
+STAN              0.02061835 0.02004644 0.01973782 0.01980370
 > 
 > sd_mat_ess = matrix(c(sd_ess_glob, sd_ess_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_ess) = c("Globally Centered", "STAN")
 > colnames(sd_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_ess
-                        M = 2       M = 4       M = 8      M = 16
-Globally Centered 0.001966784 0.001626795 0.001174544 0.001042576
-STAN              0.002361957 0.001831325 0.001256270 0.001093409
+                        M = 2       M = 4       M = 8       M = 16
+Globally Centered 0.002057343 0.001662941 0.001269352 0.0008963287
+STAN              0.002436026 0.001957370 0.001335166 0.0009593869
 > 
 > 
 > ############################################
@@ -93,8 +97,8 @@ STAN              0.002361957 0.001831325 0.001256270 0.001093409
 > for(i in 1:B){
 +   for(j in 1:length(subsize)){
 +     for(k in 1:length(M)){
-+       frob_track_glob[i,j,k] = norm(Truth - Estimate[[i]][[j]][[1]][[k]], type = "F")/norm(Truth, type = "F")
-+       frob_track_stan[i,j,k] = norm(Truth - Estimate[[i]][[j]][[2]][[k]], type = "F")/norm(Truth, type = "F")
++       frob_track_glob[i,j,k] = norm(Estimate[[i]][[j]][[1]][[k]], type = "F")
++       frob_track_stan[i,j,k] = norm(Estimate[[i]][[j]][[2]][[k]], type = "F")
 +     }
 +   }
 + }
@@ -120,17 +124,17 @@ STAN              0.002361957 0.001831325 0.001256270 0.001093409
 > rownames(final_mat_frob) = c("Globally Centered", "STAN")
 > colnames(final_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_frob
-                      M = 2     M = 4     M = 8    M = 16
-Globally Centered 0.2892617 0.2384859 0.1991964 0.1728937
-STAN              0.3336514 0.2592067 0.2025104 0.1758457
+                     M = 2    M = 4    M = 8   M = 16
+Globally Centered  9864.07 9590.314 9618.012 9469.021
+STAN              10279.35 9973.958 9708.096 9479.932
 > 
 > sd_mat_frob = matrix(c(sd_frob_glob, sd_frob_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_frob) = c("Globally Centered", "STAN")
 > colnames(sd_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_frob
-                       M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.09107693 0.07504983 0.05399826 0.04108417
-STAN              0.19672663 0.15105350 0.05549433 0.04159244
+                     M = 2    M = 4    M = 8   M = 16
+Globally Centered 1915.152 1466.934 1057.444 726.9666
+STAN              2405.087 2689.641 1120.852 724.6641
 > 
 > #################### boxplot ##############
 > 
@@ -150,7 +154,7 @@ STAN              0.19672663 0.15105350 0.05549433 0.04159244
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
 > 
 > boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains", 
-+   ylab = "Relative Frobenius Norm", ylim = c(0, 1)) #invisible boxes - only axes and plot area
++   ylab = "Frobenius Norm", ylim = c(5000, 18000)) #invisible boxes - only axes and plot area
 > boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
 +   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
 > boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
@@ -168,4 +172,4 @@ pdf
 > 
 > proc.time()
    user  system elapsed 
-  0.620   0.076   0.683 
+  0.635   0.071   0.691 
