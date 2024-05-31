@@ -74,16 +74,16 @@ Type 'q()' to quit R.
 > colnames(final_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_ess
                        M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.02118518 0.02032116 0.01976383 0.01960857
-STAN              0.02061835 0.02004644 0.01973782 0.01980370
+Globally Centered 0.02144714 0.02050655 0.02005269 0.01965607
+STAN              0.02058669 0.02024842 0.01998021 0.01969516
 > 
 > sd_mat_ess = matrix(c(sd_ess_glob, sd_ess_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_ess) = c("Globally Centered", "STAN")
 > colnames(sd_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_ess
-                        M = 2       M = 4       M = 8       M = 16
-Globally Centered 0.002057343 0.001662941 0.001269352 0.0008963287
-STAN              0.002436026 0.001957370 0.001335166 0.0009593869
+                        M = 2       M = 4       M = 8      M = 16
+Globally Centered 0.002849268 0.001859485 0.001301275 0.001015722
+STAN              0.003461575 0.002097743 0.001402937 0.001079350
 > 
 > 
 > ############################################
@@ -125,16 +125,16 @@ STAN              0.002436026 0.001957370 0.001335166 0.0009593869
 > colnames(final_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_frob
                       M = 2     M = 4     M = 8    M = 16
-Globally Centered 0.2863572 0.2375071 0.1983476 0.1772059
-STAN              0.3170597 0.2660074 0.2008637 0.1770281
+Globally Centered 0.3157162 0.2462278 0.2081236 0.1811672
+STAN              0.4285446 0.2575788 0.2116472 0.1843403
 > 
 > sd_mat_frob = matrix(c(sd_frob_glob, sd_frob_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_frob) = c("Globally Centered", "STAN")
 > colnames(sd_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_frob
-                       M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.08808958 0.06640394 0.05178515 0.04760850
-STAN              0.14112900 0.23967422 0.05241128 0.04657951
+                      M = 2      M = 4      M = 8     M = 16
+Globally Centered 0.1209234 0.07830670 0.05907089 0.04412750
+STAN              0.6479505 0.08375198 0.05911194 0.04438678
 > 
 > #################### boxplot ##############
 > 
@@ -172,4 +172,4 @@ pdf
 > 
 > proc.time()
    user  system elapsed 
-  0.654   0.061   0.699 
+  0.654   0.071   0.711 

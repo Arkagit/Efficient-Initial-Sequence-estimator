@@ -13,7 +13,7 @@ B = 100
 
 M = c(2, 4, 8, 16)
 
-subsize <- c(5e2, 8e2, 1e3, 3e3, 5e4, 8e3, 1e4)
+subsize <- c(1e4, 1e5)
 
 N = max(subsize)
 

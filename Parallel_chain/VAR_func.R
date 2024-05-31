@@ -1,10 +1,10 @@
 ########### Calling libraries
 library(mcmcse)
 library(Rcpp)
-
+library(MASS)
 
 ########### Sourcing files
-#source("Asymp_var.R")
+# source("Asymp_var.R")
 
 
 # Generated Data from Vector Auto-covariance model
@@ -15,8 +15,9 @@ var1 <- function(p = 2, phi, nsim = 1e3,  omega = diag(rep(1, p)), start = rep(0
   decomp <- svd(omega)
   omega.root <- decomp$v %*% diag((decomp$d)^(1/2), nrow = p, ncol = p) %*% t(decomp$u)
   
+  variance <- matrix(solve(diag(1, p^2) - kronecker(phi, phi))%*%as.numeric(omega), nrow = p, ncol = p)
   # chain[1, ] <- start
-  chain[1, ] <- rnorm(p)
+  chain[1, ] <- mvrnorm(1, mu = rep(0, p), Sigma = variance)
   # sigma.root%*%rnorm(p)
   for(i in 2:nsim)
   {

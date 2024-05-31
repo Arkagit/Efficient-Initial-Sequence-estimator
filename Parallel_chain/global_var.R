@@ -42,12 +42,12 @@ parallel_sig = function(par_chain, M, ch_l){
 
 	final.b = floor(mean(bs))
 
-	n.batches = floor(N/final.b)
+	n.batches = floor(ch_l/final.b)
 
-	final.data = par_chain[[1]][(N - final.b*n.batches + 1):N, ]
+	final.data = par_chain[[1]][(ch_l - final.b*n.batches + 1):ch_l, ]
 
 	for(i3 in 2:M){
-		final.data = rbind(final.data, par_chain[[i3]][(N - final.b*n.batches + 1):N, ])
+		final.data = rbind(final.data, par_chain[[i3]][(ch_l - final.b*n.batches + 1):ch_l, ])
 	}
 
 	bm = mcse.multi(final.data, method = "bm", r = 1, adjust = FALSE, size = final.b)$cov
