@@ -61,10 +61,10 @@ Type 'q()' to quit R.
 > sd_ess_stan = numeric(0)
 > 
 > for(i in 1:length(M)){
-+ 	mean_ess_glob[i] = mean(ess_track_glob[,7,i])
-+ 	sd_ess_glob[i] = sd(ess_track_glob[,7,i])
-+ 	mean_ess_stan[i] = mean(ess_track_stan[,7,i])
-+ 	sd_ess_stan[i] = sd(ess_track_stan[,7,i])
++ 	mean_ess_glob[i] = mean(ess_track_glob[,5,i])
++ 	sd_ess_glob[i] = sd(ess_track_glob[,5,i])
++ 	mean_ess_stan[i] = mean(ess_track_stan[,5,i])
++ 	sd_ess_stan[i] = sd(ess_track_stan[,5,i])
 + 
 + }
 > 
@@ -74,16 +74,16 @@ Type 'q()' to quit R.
 > colnames(final_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_ess
                        M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.02144714 0.02050655 0.02005269 0.01965607
-STAN              0.02058669 0.02024842 0.01998021 0.01969516
+Globally Centered 0.02311039 0.02284478 0.02293454 0.02289444
+STAN              0.02322306 0.02300384 0.02313355 0.02310465
 > 
 > sd_mat_ess = matrix(c(sd_ess_glob, sd_ess_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_ess) = c("Globally Centered", "STAN")
 > colnames(sd_mat_ess) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_ess
-                        M = 2       M = 4       M = 8      M = 16
-Globally Centered 0.002849268 0.001859485 0.001301275 0.001015722
-STAN              0.003461575 0.002097743 0.001402937 0.001079350
+                         M = 2        M = 4        M = 8       M = 16
+Globally Centered 0.0009300502 0.0007446004 0.0006091011 0.0004576476
+STAN              0.0009637428 0.0007801028 0.0006237732 0.0004724741
 > 
 > 
 > ############################################
@@ -112,10 +112,10 @@ STAN              0.003461575 0.002097743 0.001402937 0.001079350
 > sd_frob_stan = numeric(0)
 > 
 > for(i in 1:length(M)){
-+ 	mean_frob_glob[i] = mean(frob_track_glob[,7,i])
-+ 	sd_frob_glob[i] = sd(frob_track_glob[,7,i])
-+ 	mean_frob_stan[i] = mean(frob_track_stan[,7,i])
-+ 	sd_frob_stan[i] = sd(frob_track_stan[,7,i])
++ 	mean_frob_glob[i] = mean(frob_track_glob[,5,i])
++ 	sd_frob_glob[i] = sd(frob_track_glob[,5,i])
++ 	mean_frob_stan[i] = mean(frob_track_stan[,5,i])
++ 	sd_frob_stan[i] = sd(frob_track_stan[,5,i])
 + 
 + }
 > 
@@ -124,37 +124,37 @@ STAN              0.003461575 0.002097743 0.001402937 0.001079350
 > rownames(final_mat_frob) = c("Globally Centered", "STAN")
 > colnames(final_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > final_mat_frob
-                      M = 2     M = 4     M = 8    M = 16
-Globally Centered 0.3157162 0.2462278 0.2081236 0.1811672
-STAN              0.4285446 0.2575788 0.2116472 0.1843403
+                      M = 2      M = 4      M = 8     M = 16
+Globally Centered 0.1126021 0.09080698 0.07625350 0.06828241
+STAN              0.1150659 0.09304085 0.07953944 0.07253975
 > 
 > sd_mat_frob = matrix(c(sd_frob_glob, sd_frob_stan), byrow = TRUE, nrow = 2)
 > rownames(sd_mat_frob) = c("Globally Centered", "STAN")
 > colnames(sd_mat_frob) = c("M = 2", "M = 4", "M = 8", "M = 16")
 > sd_mat_frob
-                      M = 2      M = 4      M = 8     M = 16
-Globally Centered 0.1209234 0.07830670 0.05907089 0.04412750
-STAN              0.6479505 0.08375198 0.05911194 0.04438678
+                       M = 2      M = 4      M = 8     M = 16
+Globally Centered 0.03561802 0.02611521 0.02413802 0.02002998
+STAN              0.03552863 0.02704541 0.02577667 0.02161270
 > 
 > #################### boxplot ##############
 > 
-> boxplot(frob_track_glob[,7,i])
+> #boxplot(frob_track_glob[,7,i])
 > 
-> plot(frob_track_glob[,7,i])
+> #plot(frob_track_glob[,7,i])
 > 
 > df = data.frame(
 +   id = c(rep("global", B), rep("stan", B)),
-+   "2" = c(frob_track_glob[,7,1], frob_track_stan[,7,1]),
-+   "4" = c(frob_track_glob[,7,2], frob_track_stan[,7,2]),
-+   "8" = c(frob_track_glob[,7,3], frob_track_stan[,7,3]),
-+   "16" = c(frob_track_glob[,7,4], frob_track_stan[,7,4]))
++   "2" = c(frob_track_glob[,5,1], frob_track_stan[,5,1]),
++   "4" = c(frob_track_glob[,5,2], frob_track_stan[,5,2]),
++   "8" = c(frob_track_glob[,5,3], frob_track_stan[,5,3]),
++   "16" = c(frob_track_glob[,5,4], frob_track_stan[,5,4]))
 > 
 > 
 > pdf("Boxplot.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
 > 
 > boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains", 
-+   ylab = "Relative Frobenius Norm", ylim = c(0, 1)) #invisible boxes - only axes and plot area
++   ylab = "Relative Frobenius Norm", ylim = c(0, 0.2)) #invisible boxes - only axes and plot area
 > boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
 +   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
 > boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
@@ -162,14 +162,48 @@ STAN              0.6479505 0.08375198 0.05911194 0.04438678
 > legend("topright", legend = c("Globally Centered", "STAN"), 
 +        fill = c("cadetblue1", "firebrick1"), border = "black")
 > dev.off()
-pdf 
-  2 
+null device 
+          1 
+> 
+> ######################### ESS boxplot ######################
+> 
+> df1 = data.frame(
++   id = c(rep("global", B), rep("stan", B)),
++   "2" = c(ess_track_glob[,5,1], ess_track_stan[,5,1]),
++   "4" = c(ess_track_glob[,5,2], ess_track_stan[,5,2]),
++   "8" = c(ess_track_glob[,5,3], ess_track_stan[,5,3]),
++   "16" = c(ess_track_glob[,5,4], ess_track_stan[,5,4]))
 > 
 > 
+> pdf("ESS_Boxplot.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> 
+> boxplot(df1[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains", 
++   ylab = "Effective Sample Size", ylim = c(0.02, 0.03)) #invisible boxes - only axes and plot area
+> boxplot(df1[df1$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
++   boxwex=0.25, at = 1:ncol(df1[,-1]) - 0.15) #shift these left by -0.15
+> boxplot(df1[df1$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
++   boxwex=0.25, at = 1:ncol(df1[,-1]) + 0.15) #shift to the right by +0.15
+> legend("topright", legend = c("Globally Centered", "STAN"), 
++        fill = c("cadetblue1", "firebrick1"), border = "black")
+> dev.off()
+null device 
+          1 
 > 
 > 
+> ########################### Comparison Frob ##################
+> 
+> df2 = data.frame(
++   id = c(rep("global", B), rep("stan", B)),
++   "1e3" = c(ess_track_glob[,1,2], ess_track_stan[,1,2]),
++   "5e3" = c(ess_track_glob[,2,2], ess_track_stan[,2,2]),
++   "1e4" = c(ess_track_glob[,3,2], ess_track_stan[,3,2]),
++   "5e4" = c(ess_track_glob[,4,2], ess_track_stan[,4,2]),
++   "1e5" = c(ess_track_glob[,5,2], ess_track_stan[,5,2]))
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  0.654   0.071   0.711 
+> pdf("Comp_Boxplot_frob.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1, 1.1))
+Error in par(mar = c(5.1, 4.8, 4.1, 2.1, 1.1)) : 
+  graphical parameter "mar" has the wrong length
+Execution halted
