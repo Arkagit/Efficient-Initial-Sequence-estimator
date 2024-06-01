@@ -155,18 +155,18 @@ dev.off()
 
 df2 = data.frame(
   id = c(rep("global", B), rep("stan", B)),
-  "1e3" = c(ess_track_glob[,1,2], ess_track_stan[,1,2]),
-  "5e3" = c(ess_track_glob[,2,2], ess_track_stan[,2,2]),
-  "1e4" = c(ess_track_glob[,3,2], ess_track_stan[,3,2]),
-  "5e4" = c(ess_track_glob[,4,2], ess_track_stan[,4,2]),
-  "1e5" = c(ess_track_glob[,5,2], ess_track_stan[,5,2]))
+  "1e3" = c(frob_track_glob[,1,2], frob_track_stan[,1,2]),
+  "5e3" = c(frob_track_glob[,2,2], frob_track_stan[,2,2]),
+  "1e4" = c(frob_track_glob[,3,2], frob_track_stan[,3,2]),
+  "5e4" = c(frob_track_glob[,4,2], frob_track_stan[,4,2]),
+  "1e5" = c(frob_track_glob[,5,2], frob_track_stan[,5,2]))
 
 
 pdf("Comp_Boxplot_frob.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
 boxplot(df2[,-1], boxfill = NA, border = NA, names = subsize, xlab = "Length of parallel chains (m = 4)", 
-  ylab = "Relative Frobenious Norm", ylim = c(0, 0.03)) #invisible boxes - only axes and plot area
+  ylab = "Relative Frobenious Norm", ylim = c(0, 2)) #invisible boxes - only axes and plot area
 boxplot(df2[df2$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
   boxwex=0.25, at = 1:ncol(df2[,-1]) - 0.15) #shift these left by -0.15
 boxplot(df2[df2$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
