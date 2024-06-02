@@ -440,8 +440,8 @@ Trunc_cc = matrix(0, nrow = B, ncol = nloops)
 
 for(i in 1:B){
   for(j in 1:nloops){
-    Trunc_ise[i,j] = log((cover[[i]]$Truncation[j,1]))
-    Trunc_cc[i,j] = log(log(subsize[j]))
+    Trunc_ise[i,j] = (cover[[i]]$Truncation[j,1])
+    Trunc_cc[i,j] = log(subsize[j])
     #Trunc_ise[i,j] = subsize[j]*(cover[[i]]$Truncation[j,1])*(p*p)
     #Trunc_cc[i,j] = subsize[j]*log(subsize[j])*p
   }
@@ -451,23 +451,27 @@ se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
 se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 
 
-pdf("VAR_theoretical_complexity_log.pdf", height = 6, width = 6)
+pdf("VAR_theoretical_complexity.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
-plot(subsize, colMeans(Trunc_ise), type = "l", xlab = "Chain length",
-     ylim= c(2, 6), ylab = "Log Theoretical Complexity", col = "red")
+curve(log(x), from = 0, to = 5e5, lty = 2, col = "purple", xlab = "Chain length",
+     ylim = c(0, 130), xlim = c(0, 5e5), ylab = TeX(r'($t_{n}$)'), lwd = 2)
+
+lines(subsize, colMeans(Trunc_ise), type = "l", col = "red")
 segments(x0 = subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
   y1 = colMeans(Trunc_ise) + 1.96*se_ise, col = "red")
 
-lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
-   ylab = "Theoretical Time/(n d)", col = "purple")
-segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
-  y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
+
+#lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
+#   ylab = "Theoretical Time/(n d)", col = "purple")
+#segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
+#  y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
 
 legend("topleft", bty = "n",legend = c(TeX(r'($t_{n}$ (mISE))'), TeX(r'($\log [n]$)')), 
-  col = c("red", "purple"), lty = 1, cex= 1.2)
+  col = c("red", "purple"), lty = c(1, 2), lwd = c(1, 2), cex= 1.2)
 
 
 dev.off()
+
 
 
