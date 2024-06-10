@@ -447,6 +447,9 @@ for(i in 1:B){
   }
 }
 
+Trunc_ise = cbind(rep(0, B), Trunc_ise)
+subsize = c(1, subsize)
+
 se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
 se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 
@@ -454,7 +457,7 @@ se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 pdf("VAR_theoretical_complexity.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
-curve(log(x), from = 0, to = 5e5, lty = 2, col = "purple", xlab = "Chain length",
+curve(log(x), from = 1, to = 5e5, lty = 2, col = "purple", xlab = "Chain length",
      ylim = c(0, 130), xlim = c(0, 5e5), ylab = TeX(r'($t_{n}$)'), lwd = 2)
 
 lines(subsize, colMeans(Trunc_ise), type = "l", col = "red")
