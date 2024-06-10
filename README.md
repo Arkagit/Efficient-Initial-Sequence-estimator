@@ -1,29 +1,26 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# momentLS
+# Covariance Correlation Estimator
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of momentLS is to implement Moment LS estimators in “Efficient
-shape-constrained inference for the autocovariance sequence from a
-reversible Markov chain” <https://arxiv.org/abs/2207.12705>
+The goal is fast and efficient estimation of asymptotic covariance matrix featured in 
+"Efficient Multivariate Initial Sequence Estimator in MCMC"
 
 ## Installation
 
-You can install the development version of momentLS from
-[GitHub](https://github.com/) with:
-
+You can install the development version 
 ``` r
 # install.packages("devtools")
-devtools::install_github("hsong1/momentLS")
+devtools::install_github("Arkagit/Efficient-Initial-Sequence-estimator/Cov_func.R")
 ```
 
 ## Example
 
 We provide a basic usage example of momentLS package using a simulated
-AR(1) chain:
+VAR(1) chain:
 
 ``` r
 library(momentLS)
