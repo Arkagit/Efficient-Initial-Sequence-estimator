@@ -1,9 +1,7 @@
-WARNING: unknown option '-vanilla'
 
-
-R version 4.4.0 (2024-04-24) -- "Puppy Cup"
-Copyright (C) 2024 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu
+R version 4.3.2 (2023-10-31) -- "Eye Holes"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -18,8 +16,6 @@ Type 'contributors()' for more information and
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
-
-[Previously saved workspace restored]
 
 > set.seed(100)
 > 
@@ -150,16 +146,16 @@ STAN              0.03552863 0.02704541 0.02577667 0.02161270
 +   "16" = c(frob_track_glob[,5,4], frob_track_stan[,5,4]))
 > 
 > 
-> pdf("Boxplot.pdf", height = 6, width = 6)
+> pdf("Boxplot_frob_1e5.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
 > 
-> boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains", 
-+   ylab = "Relative Frobenius Norm", ylim = c(0, 0.2)) #invisible boxes - only axes and plot area
+> boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains (n = 1e5)", 
++   ylab = "Relative Frobenius Norm", ylim = c(0, 0.3)) #invisible boxes - only axes and plot area
 > boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
 +   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
 > boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
 +   boxwex=0.25, at = 1:ncol(df[,-1]) + 0.15) #shift to the right by +0.15
-> legend("topright", legend = c("Globally Centered", "STAN"), 
+> legend("topright", bty = "n", legend = c("Globally Centered", "STAN"), 
 +        fill = c("cadetblue1", "firebrick1"), border = "black")
 > dev.off()
 null device 
@@ -184,7 +180,7 @@ null device
 +   boxwex=0.25, at = 1:ncol(df1[,-1]) - 0.15) #shift these left by -0.15
 > boxplot(df1[df1$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
 +   boxwex=0.25, at = 1:ncol(df1[,-1]) + 0.15) #shift to the right by +0.15
-> legend("topright", legend = c("Globally Centered", "STAN"), 
+> legend("topright", bty = "n", legend = c("Globally Centered", "STAN"), 
 +        fill = c("cadetblue1", "firebrick1"), border = "black")
 > dev.off()
 null device 
@@ -195,6 +191,34 @@ null device
 > 
 > df2 = data.frame(
 +   id = c(rep("global", B), rep("stan", B)),
++   "1e3" = c(frob_track_glob[,1,1], frob_track_stan[,1,1]),
++   #"5e3" = c(frob_track_glob[,2,2], frob_track_stan[,2,2]),
++   #"1e4" = c(frob_track_glob[,3,2], frob_track_stan[,3,2]),
++   #"5e4" = c(frob_track_glob[,4,2], frob_track_stan[,4,2]),
++   "1e5" = c(frob_track_glob[,5,1], frob_track_stan[,5,1]))
+> 
+> 
+> pdf("Comp_Boxplot_frob_2.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> 
+> boxplot(df2[,-1], boxfill = NA, border = NA, names = c(1e3, 1e5), xlab = "Length of parallel chains (m = 2)", 
++   ylab = "Relative Frobenious Norm", ylim = c(0, 3)) #invisible boxes - only axes and plot area
+> boxplot(df2[df2$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
++   boxwex=0.25, at = 1:ncol(df2[,-1]) - 0.15) #shift these left by -0.15
+> boxplot(df2[df2$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
++   boxwex=0.25, at = 1:ncol(df2[,-1]) + 0.15) #shift to the right by +0.15
+> legend("topright", legend = c("Globally Centered", "STAN"), 
++        fill = c("cadetblue1", "firebrick1"), border = "black")
+> dev.off()
+null device 
+          1 
+> 
+> 
+> 
+> ########################### Comparison ESS ##################
+> 
+> df3 = data.frame(
++   id = c(rep("global", B), rep("stan", B)),
 +   "1e3" = c(ess_track_glob[,1,2], ess_track_stan[,1,2]),
 +   "5e3" = c(ess_track_glob[,2,2], ess_track_stan[,2,2]),
 +   "1e4" = c(ess_track_glob[,3,2], ess_track_stan[,3,2]),
@@ -202,8 +226,21 @@ null device
 +   "1e5" = c(ess_track_glob[,5,2], ess_track_stan[,5,2]))
 > 
 > 
-> pdf("Comp_Boxplot_frob.pdf", height = 6, width = 6)
-> par(mar = c(5.1, 4.8, 4.1, 2.1, 1.1))
-Error in par(mar = c(5.1, 4.8, 4.1, 2.1, 1.1)) : 
-  graphical parameter "mar" has the wrong length
-Execution halted
+> pdf("Comp_Boxplot_ess.pdf", height = 6, width = 6)
+> par(mar = c(5.1, 4.8, 4.1, 2.1))
+> 
+> boxplot(df3[,-1], boxfill = NA, border = NA, names = subsize, xlab = "Length of parallel chains (m = 4)", 
++   ylab = "Effective Sample Size", ylim = c(0, 0.03)) #invisible boxes - only axes and plot area
+> boxplot(df3[df3$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
++   boxwex=0.25, at = 1:ncol(df3[,-1]) - 0.15) #shift these left by -0.15
+> boxplot(df3[df3$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
++   boxwex=0.25, at = 1:ncol(df3[,-1]) + 0.15) #shift to the right by +0.15
+> legend("topright", legend = c("Globally Centered", "STAN"), 
++        fill = c("cadetblue1", "firebrick1"), border = "black")
+> dev.off()
+null device 
+          1 
+> 
+> proc.time()
+   user  system elapsed 
+  0.296   0.037   0.378 

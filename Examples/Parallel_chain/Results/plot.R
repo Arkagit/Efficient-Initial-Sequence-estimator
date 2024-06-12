@@ -123,7 +123,7 @@ boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1",
   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
 boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
   boxwex=0.25, at = 1:ncol(df[,-1]) + 0.15) #shift to the right by +0.15
-legend("topright", legend = c("Globally Centered", "STAN"), 
+legend("topright", bty = "n", legend = c("Globally Centered", "STAN"), 
        fill = c("cadetblue1", "firebrick1"), border = "black")
 dev.off()
 
@@ -146,7 +146,7 @@ boxplot(df1[df1$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1",
   boxwex=0.25, at = 1:ncol(df1[,-1]) - 0.15) #shift these left by -0.15
 boxplot(df1[df1$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
   boxwex=0.25, at = 1:ncol(df1[,-1]) + 0.15) #shift to the right by +0.15
-legend("topright", legend = c("Globally Centered", "STAN"), 
+legend("topright", bty = "n", legend = c("Globally Centered", "STAN"), 
        fill = c("cadetblue1", "firebrick1"), border = "black")
 dev.off()
 

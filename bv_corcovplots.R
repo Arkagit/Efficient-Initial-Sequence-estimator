@@ -73,7 +73,7 @@ lines(chart[,2], time[,2],type = 'b', col = "red", pch = 1:dim(time)[1])
 lines(chart[,3], time[,3],type = 'b', col = "purple", pch = 1:dim(time)[1])
 lines(chart[,4], time[,4],type = 'b', col = "skyblue", pch = 1:dim(time)[1])
 lines(chart[,5], time[,5],type = 'b', col = "brown", pch = 1:dim(time)[1])
-legend("topleft", legend = subsize,
+legend("topleft", bty = "n", legend = subsize,
        lwd = 1, cex = 0.75, col = "black", pch = 1:(dim(time)[1]))
 
 add_legend("topright", bty = "n", legend = c("BM", "CC - ISE", "mISE", "SVE", "CC - MLS"), 
@@ -541,7 +541,7 @@ lines(N, colMeans(mls_time), col = "brown", lty = 1)
 segments(x0 = N, y0 = colMeans(mls_time) - 1.96*se_time_mls, 
   y1 = colMeans(mls_time) + 1.96*se_time_mls, col = "brown")
 
-legend("topleft",legend = c("BM", "SVE",  "mISE", "CC - ISE","CC - MLS"),
+legend("topleft", bty = "n",legend = c("BM", "SVE",  "mISE", "CC - ISE","CC - MLS"),
  col = c("black", "skyblue",  "red", "purple","brown"), cex = 0.8,lty = 1)
 dev.off()
 
@@ -609,7 +609,7 @@ segments(x0 = N, y0 = colMeans(mls_ess) - 1.96*se_ess_mls,
   y1 = colMeans(mls_ess) + 1.96*se_ess_mls, col = "brown")
 
 #abline(h = 0, lty = 2)
-legend("topright",legend = c("BM", "SVE", "mISE", "CC - ISE", "CC - MLS"),
+legend("topright", bty = "n",legend = c("BM", "SVE", "mISE", "CC - ISE", "CC - MLS"),
  col = c("black", "skyblue", "red", "purple", "brown"), cex = 0.8,lty = 1)
 dev.off()
 
@@ -740,7 +740,7 @@ boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1",
   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
 boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
   boxwex=0.25, at = 1:ncol(df[,-1]) + 0.15) #shift to the right by +0.15
-legend("topright", legend = c("Globally Centered", "STAN"), 
+legend("topright", bty = "n", legend = c("Globally Centered", "STAN"), 
        fill = c("cadetblue1", "firebrick1"), border = "black")
 dev.off()
 
@@ -760,12 +760,12 @@ pdf("Plots/Boxplot_frob_1e3.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
 boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains (n = 1e3)", 
-  ylab = "Relative Frobenius Norm", ylim = c(0, 4.5)) #invisible boxes - only axes and plot area
+  ylab = "Relative Frobenius Norm", ylim = c(0, 4.1)) #invisible boxes - only axes and plot area
 boxplot(df[df$id=="global", -1], xaxt = "n", add = TRUE, boxfill="cadetblue1", 
   boxwex=0.25, at = 1:ncol(df[,-1]) - 0.15) #shift these left by -0.15
 boxplot(df[df$id=="stan", -1], xaxt = "n", add = TRUE, boxfill="firebrick1", 
   boxwex=0.25, at = 1:ncol(df[,-1]) + 0.15) #shift to the right by +0.15
-legend("topright", legend = c("Globally Centered", "STAN"), 
+legend("topright", bty = "n", legend = c("Globally Centered", "STAN"), 
        fill = c("cadetblue1", "firebrick1"), border = "black")
 dev.off()
 

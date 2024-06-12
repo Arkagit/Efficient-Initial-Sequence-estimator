@@ -55,7 +55,7 @@ lines(N, colMeans(mls_time), col = "brown", lty = 1)
 segments(x0 = N, y0 = colMeans(mls_time) - 1.96*se_time_mls, 
 	y1 = colMeans(mls_time) + 1.96*se_time_mls, col = "brown")
 
-legend("topleft",legend = c("BM", "SVE",  "mISE", "CC - ISE","CC - MLS"),
+legend("topleft", bty = "n",legend = c("BM", "SVE",  "mISE", "CC - ISE","CC - MLS"),
  col = c("black", "skyblue",  "red", "purple","brown"), cex = 0.8,lty = 1)
 dev.off()
 
@@ -123,6 +123,6 @@ segments(x0 = N, y0 = colMeans(mls_ess) - 1.96*se_ess_mls,
 	y1 = colMeans(mls_ess) + 1.96*se_ess_mls, col = "brown")
 
 #abline(h = 0, lty = 2)
-legend("topright",legend = c("BM", "SVE", "mISE", "CC - ISE", "CC - MLS"),
+legend("topright", bty = "n",legend = c("BM", "SVE", "mISE", "CC - ISE", "CC - MLS"),
  col = c("black", "skyblue", "red", "purple", "brown"), cex = 0.8,lty = 1)
 dev.off()
