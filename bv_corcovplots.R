@@ -65,7 +65,7 @@ add_legend <- function(...) {
 
 #time = log(time)/ log(10)
 
-pdf("coverage_time1.pdf", height = 6, width = 8)
+pdf("Plots/coverage_time1.pdf", height = 6, width = 8)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(chart[,1], time[,1], xlim = c(0.43, 1), ylim = c(-2, 2),type = 'b', xlab = "Coverage",
 	ylab = "log(Time)", pch = 1:dim(time)[1])
@@ -132,7 +132,7 @@ se_ess_mls <- apply(ess_track_mls, 2, sd)/sqrt(B)
 #subsize = log(subsize)/log(10)
 
 
-pdf("VAR_ess.pdf", height = 6, width = 6)
+pdf("Plots/VAR_ess.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(ess_track_bm), type = "l", xlab = "Chain length",
    ylim = c(0.020, 0.040), log = 'x',  ylab = "ESS/n")
@@ -211,7 +211,7 @@ se_norm_mls <- apply(norm_track_mls, 2, sd)/sqrt(B)
 #subsize = log(subsize)/log(10)
 
 
-pdf("VAR_Frob.pdf", height = 6, width = 6)
+pdf("Plots/VAR_Frob.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Chain length",
   ylim = c(0, 0.6), log = 'x', ylab = "Relative Frobenius norm")
@@ -291,7 +291,7 @@ se_bias_mls <- apply(bias_track_mls, 2, sd)/sqrt(B)
 #subsize = log(subsize)/log(10)
 
 
-pdf("VAR_eigen_bias.pdf", height = 6, width = 6)
+pdf("Plots/VAR_eigen_bias.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(bias_track_bm), type = "l", xlab = "Chain length",
   ylim = c(0, 6000), log = 'x', ylab = "Absolute max error of Eigen values")
@@ -389,7 +389,7 @@ add_legend <- function(...) {
 
 #subsize = log(subsize)/log(10)
 
-pdf("VAR_comptime.pdf", height = 6, width = 6)
+pdf("Plots/VAR_comptime.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Chain length",
   ylim = c(0, 80), log = 'x', ylab = "Computational Time (sec)")
@@ -458,7 +458,7 @@ se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
 se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 
 
-pdf("VAR_theoretical_complexity.pdf", height = 6, width = 6)
+pdf("Plots/VAR_theoretical_complexity.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
 curve(log(x), from = 1, to = 5e5, lty = 2, col = "black", xlab = "Chain length",
@@ -518,7 +518,7 @@ se_time_mls <- apply(mls_time, 2, sd)/sqrt(repet)
 #N = log(N)/log(10)
 
 
-pdf("Calcium_spike_comptime.pdf", height = 6, width = 6)
+pdf("Plots/Calcium_spike_comptime.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
 plot(N, colMeans(bm_time),col = "black", xlab = "Chain Length", ylab = "Computational time (sec)", 
   ylim = c(0, 300), log = 'x', type = "l")
@@ -585,7 +585,7 @@ se_ess_mls <- apply(mls_ess, 2, sd)/sqrt(repet)
 
 #N = log(N)/log(10)
 
-pdf("Calcium_spike_ess.pdf", height = 6, width = 6)
+pdf("Plots/Calcium_spike_ess.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
 plot(N, colMeans(bm_ess),col = "black", xlab = "Chain Length", ylab = "ESS/n", 
   ylim = c(0.035, 0.075), log = 'x', type = "l")
@@ -731,7 +731,7 @@ df = data.frame(
   "16" = c(frob_track_glob[,5,4], frob_track_stan[,5,4]))
 
 
-pdf("Boxplot_frob_1e5.pdf", height = 6, width = 6)
+pdf("Plots/Boxplot_frob_1e5.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
 boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains (n = 1e5)", 
@@ -756,7 +756,7 @@ df = data.frame(
   "16" = c(frob_track_glob[,1,4], frob_track_stan[,1,4]))
 
 
-pdf("Boxplot_frob_1e3.pdf", height = 6, width = 6)
+pdf("Plots/Boxplot_frob_1e3.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
 boxplot(df[,-1], boxfill = NA, border = NA, names = M, xlab = "Number of parallel chains (n = 1e3)", 
