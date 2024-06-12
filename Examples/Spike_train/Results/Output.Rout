@@ -1,0 +1,947 @@
+
+R version 4.4.0 (2024-04-24) -- "Puppy Cup"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> set.seed(111)
+> library(mcmcse)
+> library("coda")
+> library(bpr)
+> library(foreach)
+> library(doParallel)
+Loading required package: iterators
+Loading required package: parallel
+> library(Rcpp)
+> library(RcppDist)
+> load("..//data_calcium_imaging_for_poisson.RData")
+> str(data)
+'data.frame':	920 obs. of  8 variables:
+ $ cell_id   : num  5.17e+08 5.42e+08 5.17e+08 5.17e+08 5.17e+08 ...
+ $ area      : Factor w/ 6 levels "VISal","VISam",..: 4 4 4 4 4 4 4 4 4 4 ...
+ $ CRE.line  : Factor w/ 13 levels "Cux2-CreERT2",..: 9 9 9 9 9 9 9 9 9 9 ...
+ $ depth     : num  350 350 350 350 350 350 350 350 350 350 ...
+ $ mouse_id  : num  5.02e+08 5.21e+08 5.02e+08 5.02e+08 5.02e+08 ...
+ $ experiment: Factor w/ 4 levels "A","B","C","C2": 3 3 3 3 3 1 1 1 1 1 ...
+ $ n_spikes  : num  410 188 67 218 45 366 869 735 185 656 ...
+ $ comb      : chr  "VISpScnn1a-Tg3-Cre350C" "VISpScnn1a-Tg3-Cre350C" "VISpScnn1a-Tg3-Cre350C" "VISpScnn1a-Tg3-Cre350C" ...
+> 
+> source("../Cov_func.R")
+Registered S3 methods overwritten by 'RcppEigen':
+  method               from         
+  predict.fastLm       RcppArmadillo
+  print.fastLm         RcppArmadillo
+  summary.fastLm       RcppArmadillo
+  print.summary.fastLm RcppArmadillo
+
+Attaching package: ‘RcppEigen’
+
+The following objects are masked from ‘package:RcppArmadillo’:
+
+    fastLm, fastLmPure
+
+> #library(matrixcalc)
+> data$depth2 = data$depth^2
+> X = model.matrix(~ ., data = data[,c(2:4,6,9)])
+> str(X)
+ num [1:920, 1:23] 1 1 1 1 1 1 1 1 1 1 ...
+ - attr(*, "dimnames")=List of 2
+  ..$ : chr [1:920] "1" "151" "9610" "9710" ...
+  ..$ : chr [1:23] "(Intercept)" "areaVISam" "areaVISl" "areaVISp" ...
+ - attr(*, "assign")= int [1:23] 0 1 1 1 1 1 2 2 2 2 ...
+ - attr(*, "contrasts")=List of 3
+  ..$ area      : chr "contr.treatment"
+  ..$ CRE.line  : chr "contr.treatment"
+  ..$ experiment: chr "contr.treatment"
+> p = ncol(X)
+> n = nrow(X)
+> y = data$n_spikes
+> str(y)
+ num [1:920] 410 188 67 218 45 366 869 735 185 656 ...
+> 
+> mle.start <- c(summary(glm(y ~ X - 1, family = "poisson"(link = "log")))$coef[,1])
+> str(mle.start)
+ Named num [1:23] 6.2146 -0.2259 0.0752 0.0298 -0.2077 ...
+ - attr(*, "names")= chr [1:23] "X(Intercept)" "XareaVISam" "XareaVISl" "XareaVISp" ...
+> 
+> N = c(5e3, 8e3, 1e4, 3e4, 5e4, 8e4, 1e5, 3e5, 5e5)
+> repet = 1e2
+> burnin = 1:100
+> nloops <- 100
+> #subsize <- floor(seq(1e4, N, length = nloops))
+> data = data.frame(y=y, X)
+> 
+> #----------------------------------------------------------------------------------#
+> 
+> 
+> 
+> bm_time = rep(0, length(N))
+> ise_time = rep(0, length(N))
+> sve_time = rep(0, length(N))
+> cc_time = rep(0, length(N))
+> mls_time = rep(0, length(N))
+> 
+> 
+> 
+> 
+> Table = list()
+> 
+> parallel::detectCores()
+[1] 64
+> n.cores <- 50
+> doParallel::registerDoParallel(cores = n.cores)
+> 
+> 
+> 
+> Table = foreach(i = 1:repet, .packages = c("mcmcse"))%dopar%{
++ 	
++ 	 chain <- bpr::sample_bpr(y ~ . - 1, data = data,
++                       iter = max(N), burnin = max(burnin),
++                       prior = list(type="gaussian", b = rep(0,p), B = diag(p)*2), 
++                       pars = list(max_dist = 1e+6),
++                       state = mle.start)$sim$beta
++ 	 mat = list()
++ 
++ 	for(j in 1:length(N)){
++ 		minichain = chain[1:N[j],]
++ 
++ 		gam <- var(minichain)
++ 
++ 		bm_time[j] = system.time(bm <- mcse.multi(minichain, r = 1, method = "bm", adjust = FALSE)$cov)[3]
++ 
++ 		ise_time[j] = system.time(ise <- mcse.initseq(minichain)$cov)[3]
++ 		
++ 		sve_time[j] = system.time(sve <- mcse.multi(minichain, r = 1,method = "tukey", adjust = FALSE)$cov)[3]
++ 		
++ 		cc_time[j] = system.time(cc <- cov.sig(minichain, type = "geyer")$covariance)[3]
++ 		
++ 		mls_time[j] = system.time(mls <- cov.sig(minichain, type = "MomentLS")$covariance)[3]
++ 
++ 		mat = append(mat, list(gam, bm, ise, sve, cc, mls))
++ 	}
++ 
++ 	print(i)
++ 
++ 	comb_time = list(bm_time, ise_time, sve_time, cc_time, mls_time)
++ 
++ 	list(mat, comb_time)
++ }
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling completed in 7.43657 hours 
+
+Sampling completed in 7.43783 hours 
+
+Sampling completed in 7.43805 hours 
+
+Sampling completed in 7.43862 hours 
+
+Sampling completed in 7.44246 hours 
+
+Sampling completed in 7.44361 hours 
+
+Sampling completed in 7.44484 hours 
+
+Sampling completed in 7.44508 hours 
+
+Sampling completed in 7.44688 hours 
+
+Sampling completed in 7.44694 hours 
+
+Sampling completed in 7.44779 hours 
+
+Sampling completed in 7.44791 hours 
+
+Sampling completed in 7.44867 hours 
+
+Sampling completed in 7.44968 hours 
+
+Sampling completed in 7.44977 hours 
+
+Sampling completed in 7.45101 hours 
+
+Sampling completed in 7.451 hours 
+
+Sampling completed in 7.45248 hours 
+
+Sampling completed in 7.45342 hours 
+
+Sampling completed in 7.45371 hours 
+
+Sampling completed in 7.45408 hours 
+
+Sampling completed in 7.45463 hours 
+
+Sampling completed in 7.45519 hours 
+
+Sampling completed in 7.45555 hours 
+
+Sampling completed in 7.45652 hours 
+
+Sampling completed in 7.45708 hours 
+
+Sampling completed in 7.45716 hours 
+
+Sampling completed in 7.45783 hours 
+
+Sampling completed in 7.45794 hours 
+
+Sampling completed in 7.45895 hours 
+
+Sampling completed in 7.4601 hours 
+
+Sampling completed in 7.46026 hours 
+
+Sampling completed in 7.46029 hours 
+
+Sampling completed in 7.46069 hours 
+
+Sampling completed in 7.4609 hours 
+
+Sampling completed in 7.46107 hours 
+
+Sampling completed in 7.46128 hours 
+
+Sampling completed in 7.46131 hours 
+
+Sampling completed in 7.46138 hours 
+
+Sampling completed in 7.46138 hours 
+
+Sampling completed in 7.46169 hours 
+
+Sampling completed in 7.46179 hours 
+
+Sampling completed in 7.46239 hours 
+
+Sampling completed in 7.46251 hours 
+
+Sampling completed in 7.4628 hours 
+
+Sampling completed in 7.46324 hours 
+
+Sampling completed in 7.46327 hours 
+
+Sampling completed in 7.46397 hours 
+
+Sampling completed in 7.46431 hours 
+
+Sampling completed in 7.46503 hours 
+
+[1] 35
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 26
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 42
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 14
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 24
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 2
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 38
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 50
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 4
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 29
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 20
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 33
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 8
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 39
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 3
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 28
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 22
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 40
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 27
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 32
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 7
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 41
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 18
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 46
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 21
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 44
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 25
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 34
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 9
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 10
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 13
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 11
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 15
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 1
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 19
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 6
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 16
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 45
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 5
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 31
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 48
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 17
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 36
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 23
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 37
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 43
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 49
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 47
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 30
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+[1] 12
+Running MH sampler with a gaussian prior distribution.
+Chains initialized at the provided initial points.
+
+Sampling 5e+05 iterations 
+
+Sampling completed in 7.10479 hours 
+
+Sampling completed in 7.12975 hours 
+
+Sampling completed in 7.13485 hours 
+
+Sampling completed in 7.15174 hours 
+
+Sampling completed in 7.15587 hours 
+
+Sampling completed in 7.15896 hours 
+
+Sampling completed in 7.16334 hours 
+
+Sampling completed in 7.17997 hours 
+
+Sampling completed in 7.17678 hours 
+
+Sampling completed in 7.17949 hours 
+
+Sampling completed in 7.17929 hours 
+
+Sampling completed in 7.17899 hours 
+
+Sampling completed in 7.17911 hours 
+
+Sampling completed in 7.19047 hours 
+
+Sampling completed in 7.1845 hours 
+
+Sampling completed in 7.18268 hours 
+
+Sampling completed in 7.1884 hours 
+
+Sampling completed in 7.19181 hours 
+
+Sampling completed in 7.18689 hours 
+
+Sampling completed in 7.18549 hours 
+
+Sampling completed in 7.28479 hours 
+
+Sampling completed in 7.1922 hours 
+
+[1] 100
+[1] 76
+[1] 74
+[1] 89
+[1] 54
+[1] 78
+[1] 64
+[1] 70
+[1] 84
+Sampling completed in 7.45889 hours 
+
+[1] 91
+[1] 96
+[1] 94
+[1] 61
+[1] 75
+Sampling completed in 7.4897 hours 
+
+[1] 71
+[1] 68
+[1] 69
+[1] 55
+[1] 65
+[1] 88
+Sampling completed in 7.50466 hours 
+
+[1] 66
+Sampling completed in 7.48167 hours 
+
+Sampling completed in 7.50541 hours 
+
+Sampling completed in 7.47705 hours 
+
+Sampling completed in 7.49625 hours 
+
+[1] 95
+Sampling completed in 7.51183 hours 
+
+Sampling completed in 7.32677 hours 
+
+Sampling completed in 7.49699 hours 
+
+Sampling completed in 7.48743 hours 
+
+Sampling completed in 7.48655 hours 
+
+Sampling completed in 7.48752 hours 
+
+Sampling completed in 7.40807 hours 
+
+Sampling completed in 7.4817 hours 
+
+Sampling completed in 7.54303 hours 
+
+Sampling completed in 7.51539 hours 
+
+Sampling completed in 7.53637 hours 
+
+Sampling completed in 7.45664 hours 
+
+[1] 85
+Sampling completed in 7.43877 hours 
+
+Sampling completed in 7.46266 hours 
+
+Sampling completed in 7.47202 hours 
+
+Sampling completed in 7.49572 hours 
+
+Sampling completed in 7.47849 hours 
+
+Sampling completed in 7.45403 hours 
+
+Sampling completed in 7.4379 hours 
+
+Sampling completed in 7.46726 hours 
+
+Sampling completed in 7.46664 hours 
+
+[1] 92
+[1] 53
+[1] 77
+[1] 60
+[1] 72
+[1] 52
+[1] 58
+[1] 63
+[1] 59
+[1] 82
+[1] 67
+[1] 90
+[1] 97
+[1] 56
+[1] 83
+[1] 86
+[1] 79
+[1] 51
+[1] 62
+[1] 57
+[1] 81
+[1] 98
+[1] 93
+[1] 80
+[1] 73
+[1] 87
+[1] 99
+> 
+> save(Table, N, repet, file = "Output_d.Rdata")
+> 
+> proc.time()
+       user      system     elapsed 
+3484266.441    5121.642   54917.795 
