@@ -7,7 +7,7 @@
 <!-- badges: end -->
 
 The goal is to implement the multivariate Covariance Correlation estimator in 
-"Efficient Multivariate Initial Sequence Estimator in MCMC"
+"Efficient Multivariate Initial Sequence Estimator in MCMC" by Arka Banerjee and Dootika Vats [link](http://arxiv.org/abs/2406.15874)
 
 The folders inside "Examples/" consist of illustrative examples where the 
 estimator is employed and its performance is compared with existing methods.
