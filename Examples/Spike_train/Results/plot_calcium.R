@@ -16,11 +16,11 @@ mls_time = matrix(0, nrow = repet, ncol = length(N))
 
 
 for(i in 1:repet){
-	bm_time[i,] = as.numeric(Table[[i]][[2]][[1]])
-	ise_time[i,] = as.numeric(Table[[i]][[2]][[2]])
-	sve_time[i,] = as.numeric(Table[[i]][[2]][[3]])
-	cc_time[i,] = as.numeric(Table[[i]][[2]][[4]])
-	mls_time[i,] = as.numeric(Table[[i]][[2]][[5]])
+	bm_time[i,] = log(as.numeric(Table[[i]][[2]][[1]]))
+	ise_time[i,] = log(as.numeric(Table[[i]][[2]][[2]]))
+	sve_time[i,] = log(as.numeric(Table[[i]][[2]][[3]]))
+	cc_time[i,] = log(as.numeric(Table[[i]][[2]][[4]]))
+	mls_time[i,] = log(as.numeric(Table[[i]][[2]][[5]]))
 }
 
 se_time_bm <- apply(bm_time, 2, sd)/sqrt(repet)
@@ -34,8 +34,8 @@ se_time_mls <- apply(mls_time, 2, sd)/sqrt(repet)
 
 pdf("Calcium_spike_comptime.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
-plot(N, colMeans(bm_time),col = "black", xlab = "Chain Length", ylab = "Computational time (sec)", 
-	ylim = c(0, 300), log = 'x', type = "l")
+plot(N, colMeans(bm_time),col = "black", xlab = "Chain Length", ylab = "Log Computational time (sec)", 
+	ylim = c(-10, 10), log = 'x', type = "l")
 segments(x0 = N, y0 = colMeans(bm_time) - 1.96*se_time_bm, 
 	y1 = colMeans(bm_time) + 1.96*se_time_bm)
 
