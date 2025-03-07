@@ -358,11 +358,11 @@ for(i in 1:B){
   chart = chart + (cover[[i]]$count_mat)/B
   time = time + log(cover[[i]]$Time)/(log(10)*B)
   for(j in 1:length(subsize)){
-    time_track_bm[i,j] = cover[[i]]$Time[j,1]
-    time_track_ise[i,j] = cover[[i]]$Time[j,2]
-    time_track_cc[i,j] = cover[[i]]$Time[j,3]
-    time_track_sve[i,j] = cover[[i]]$Time[j,4]
-    time_track_mls[i,j] = cover[[i]]$Time[j,5]
+    time_track_bm[i,j] = log(cover[[i]]$Time[j,1])
+    time_track_ise[i,j] = log(cover[[i]]$Time[j,2])
+    time_track_cc[i,j] = log(cover[[i]]$Time[j,3])
+    time_track_sve[i,j] = log(cover[[i]]$Time[j,4])
+    time_track_mls[i,j] = log(cover[[i]]$Time[j,5])
   }
 }
 
@@ -389,7 +389,7 @@ add_legend <- function(...) {
 pdf("VAR_comptime.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Chain length",
-  ylim = c(0, 80), log = 'x', ylab = "Computational Time (sec)")
+  ylim = c(-6, 7), log = 'x', ylab = "Log Computational Time (sec)")
 segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
 

@@ -1,9 +1,7 @@
-WARNING: unknown option '-vanilla'
 
-
-R version 4.4.0 (2024-04-24) -- "Puppy Cup"
-Copyright (C) 2024 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu
+R version 4.3.2 (2023-10-31) -- "Eye Holes"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -18,8 +16,6 @@ Type 'contributors()' for more information and
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
-
-[Previously saved workspace restored]
 
 > ############################################################
 > ####Coverage vs Comp Time################################### 
@@ -119,7 +115,7 @@ Type 'q()' to quit R.
 > legend("topleft", legend = subsize,
 +        lwd = 1, cex = 0.75, col = "black", pch = 1:(dim(time)[1]))
 > 
-> add_legend("topright", bty = "n", legend = c("BM", "CC - ISE", "ISE", "SVE", "CC - MLS"), 
+> add_legend("topright", bty = "n", legend = c("BM", "CC - ISE", "mISE", "SVE", "CC - MLS"), 
 + 	col = c("black", "purple", "red", "skyblue", "brown"), lty = 1, cex=0.65)
 > dev.off()
 null device 
@@ -200,7 +196,7 @@ null device
 > segments(x0 = subsize, y0 = colMeans(ess_track_mls) - 1.96*se_ess_mls, 
 +   y1 = colMeans(ess_track_mls) + 1.96*se_ess_mls, col = "brown")
 > abline(h = ess_true, lty = 2)
-> legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS", "True"), 
+> legend("topright", bty = "n",legend = c("BM", "mISE", "SVE", "CC - ISE", "CC - MLS", "True"), 
 +   col = c("black",  "red", "skyblue", "purple", "brown", "black"), lty = c(1,1,1,1,1,2), cex=0.65)
 > 
 > dev.off()
@@ -261,7 +257,7 @@ null device
 > pdf("VAR_Frob.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
 > plot(subsize, colMeans(norm_track_bm), type = "l", xlab = "Chain length",
-+   ylim = c(0, 0.6), log = 'x', ylab = "Frobenius norm")
++   ylim = c(0, 0.6), log = 'x', ylab = "Relative Frobenius norm")
 > segments(x0 = subsize, y0 = colMeans(norm_track_bm) - 1.96*se_norm_bm, 
 +   y1 = colMeans(norm_track_bm) + 1.96*se_norm_bm)
 > 
@@ -281,7 +277,7 @@ null device
 > segments(x0 = subsize, y0 = colMeans(norm_track_mls) - 1.96*se_norm_mls, 
 +   y1 = colMeans(norm_track_mls) + 1.96*se_norm_mls, col = "brown")
 > #abline(h = true_norm, lty = 2)
-> legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS"), 
+> legend("topright", bty = "n",legend = c("BM", "mISE", "SVE", "CC - ISE", "CC - MLS"), 
 +   col = c("black",  "red", "skyblue", "purple", "brown"), lty = c(1,1,1,1,1), cex=0.75)
 > 
 > dev.off()
@@ -362,7 +358,7 @@ null device
 > segments(x0 = subsize, y0 = colMeans(bias_track_mls) - 1.96*se_bias_mls, 
 +   y1 = colMeans(bias_track_mls) + 1.96*se_bias_mls, col = "brown")
 > 
-> legend("topright", bty = "n",legend = c("BM", "ISE", "SVE", "CC - ISE", "CC - MLS"), 
+> legend("topright", bty = "n",legend = c("BM", "mISE", "SVE", "CC - ISE", "CC - MLS"), 
 +   col = c("black",  "red", "brown", "purple","skyblue"), lty = 1, cex=0.75)
 > 
 > dev.off()
@@ -410,11 +406,11 @@ null device
 +   chart = chart + (cover[[i]]$count_mat)/B
 +   time = time + log(cover[[i]]$Time)/(log(10)*B)
 +   for(j in 1:length(subsize)){
-+     time_track_bm[i,j] = cover[[i]]$Time[j,1]
-+     time_track_ise[i,j] = cover[[i]]$Time[j,2]
-+     time_track_cc[i,j] = cover[[i]]$Time[j,3]
-+     time_track_sve[i,j] = cover[[i]]$Time[j,4]
-+     time_track_mls[i,j] = cover[[i]]$Time[j,5]
++     time_track_bm[i,j] = log(cover[[i]]$Time[j,1])
++     time_track_ise[i,j] = log(cover[[i]]$Time[j,2])
++     time_track_cc[i,j] = log(cover[[i]]$Time[j,3])
++     time_track_sve[i,j] = log(cover[[i]]$Time[j,4])
++     time_track_mls[i,j] = log(cover[[i]]$Time[j,5])
 +   }
 + }
 > 
@@ -461,7 +457,7 @@ null device
 > pdf("VAR_comptime.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
 > plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Chain length",
-+   ylim = c(0, 80), log = 'x', ylab = "Computational Time (sec)")
++   ylim = c(-6, 7), log = 'x', ylab = "Log Computational Time (sec)")
 > segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
 +   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
 > 
@@ -481,7 +477,7 @@ null device
 > segments(x0 = subsize, y0 = colMeans(time_track_mls) - 1.96*se_time_mls, 
 +   y1 = colMeans(time_track_mls) + 1.96*se_time_mls, col = "brown")
 > 
-> legend("topleft", bty = "n",legend = c("BM", "ISE",  "SVE", "CC - ISE", "CC - MLS"), 
+> legend("topleft", bty = "n",legend = c("BM", "mISE",  "SVE", "CC - ISE", "CC - MLS"), 
 +   col = c("black",  "red",  "skyblue","purple","brown"), lty = 1, cex=0.75)
 > 
 > dev.off()
@@ -497,6 +493,7 @@ null device
 > source("../Asymp_var.R")
 > 
 > load("dat_matices.Rdata")
+> library(latex2exp)
 > 
 > nloops = length(subsize)
 > 
@@ -513,10 +510,15 @@ null device
 > 
 > for(i in 1:B){
 +   for(j in 1:nloops){
-+     Trunc_ise[i,j] = log(subsize[j]*(cover[[i]]$Truncation[j,1])*(p*p))
-+     Trunc_cc[i,j] = log(subsize[j]*log(subsize[j])*p)
++     Trunc_ise[i,j] = (cover[[i]]$Truncation[j,1])
++     Trunc_cc[i,j] = log(subsize[j])
++     #Trunc_ise[i,j] = subsize[j]*(cover[[i]]$Truncation[j,1])*(p*p)
++     #Trunc_cc[i,j] = subsize[j]*log(subsize[j])*p
 +   }
 + }
+> 
+> Trunc_ise = cbind(rep(0, B), Trunc_ise)
+> subsize = c(1, subsize)
 > 
 > se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
 > se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
@@ -525,18 +527,21 @@ null device
 > pdf("VAR_theoretical_complexity.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
 > 
-> plot(subsize, colMeans(Trunc_ise), type = "l", xlab = "Chain length",
-+    ylim = c(10, 25), ylab = "Log Theoretical Complexity", col = "red")
+> curve(log(x), from = 1, to = 5e5, lty = 2, col = "black", xlab = "Chain length",
++      ylim = c(0, 130), xlim = c(0, 5e5), ylab = TeX(r'($t_{n}$)'), lwd = 2)
+> 
+> lines(subsize, colMeans(Trunc_ise), type = "l", col = "red")
 > segments(x0 = subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
 +   y1 = colMeans(Trunc_ise) + 1.96*se_ise, col = "red")
 > 
-> lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
-+    ylab = "Theoretical Time/(n d)", col = "purple")
-> segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
-+   y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
 > 
-> legend("bottomright", bty = "n",legend = c("ISE complexity", "CC-Geyer complexity"), 
-+   col = c("red", "purple"), lty = 1, cex=0.75)
+> #lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
+> #   ylab = "Theoretical Time/(n d)", col = "purple")
+> #segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
+> #  y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
+> 
+> legend("topleft", bty = "n",legend = c(TeX(r'($t_{n}$ (mISE))'), TeX(r'($\log [n]$)')), 
++   col = c("red", "black"), lty = c(1, 2), lwd = c(1, 2), cex= 1.2)
 > 
 > 
 > dev.off()
@@ -545,6 +550,7 @@ null device
 > 
 > 
 > 
+> 
 > proc.time()
    user  system elapsed 
- 26.342   0.225  26.555 
+ 11.306   0.237  11.674 
