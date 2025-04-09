@@ -487,7 +487,7 @@ null device
 > 
 > 
 > ############################################################
-> ##Computational Time Plot#################################### 
+> ##Truncation Time Plot#################################### 
 > 
 > source("../VAR_func.R")
 > source("../Asymp_var.R")
@@ -506,42 +506,26 @@ null device
 + }
 > 
 > Trunc_ise = matrix(0, nrow = B, ncol = nloops)
-> Trunc_cc = matrix(0, nrow = B, ncol = nloops)
 > 
 > for(i in 1:B){
 +   for(j in 1:nloops){
 +     Trunc_ise[i,j] = (cover[[i]]$Truncation[j,1])
-+     Trunc_cc[i,j] = log(subsize[j])
-+     #Trunc_ise[i,j] = subsize[j]*(cover[[i]]$Truncation[j,1])*(p*p)
-+     #Trunc_cc[i,j] = subsize[j]*log(subsize[j])*p
 +   }
 + }
 > 
-> Trunc_ise = cbind(rep(0, B), Trunc_ise)
-> subsize = c(1, subsize)
+> Trunc_ise = cbind(log(Trunc_ise))
+> l.subsize = log(subsize)
 > 
 > se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
-> se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 > 
 > 
-> pdf("VAR_theoretical_complexity.pdf", height = 6, width = 6)
+> pdf("VAR_theoretical_complexity_logx_12.pdf", height = 6, width = 6)
 > par(mar = c(5.1, 4.8, 4.1, 2.1))
 > 
-> curve(log(x), from = 1, to = 5e5, lty = 2, col = "black", xlab = "Chain length",
-+      ylim = c(0, 130), xlim = c(0, 5e5), ylab = TeX(r'($t_{n}$)'), lwd = 2)
-> 
-> lines(subsize, colMeans(Trunc_ise), type = "l", col = "red")
-> segments(x0 = subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
+> plot(l.subsize, colMeans(Trunc_ise), type = "b", col = "red",
++  pch = 16, xlab = TeX(r'($\log (n)$)'), ylab = TeX(r'(Log of $t_{n}$)'))
+> segments(x0 = l.subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
 +   y1 = colMeans(Trunc_ise) + 1.96*se_ise, col = "red")
-> 
-> 
-> #lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
-> #   ylab = "Theoretical Time/(n d)", col = "purple")
-> #segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
-> #  y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
-> 
-> legend("topleft", bty = "n",legend = c(TeX(r'($t_{n}$ (mISE))'), TeX(r'($\log [n]$)')), 
-+   col = c("red", "black"), lty = c(1, 2), lwd = c(1, 2), cex= 1.2)
 > 
 > 
 > dev.off()
@@ -551,6 +535,8 @@ null device
 > 
 > 
 > 
+> 
+> 
 > proc.time()
    user  system elapsed 
- 11.306   0.237  11.674 
+ 11.396   0.226  11.743 

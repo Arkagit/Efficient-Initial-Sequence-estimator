@@ -328,15 +328,6 @@ source("Examples/VAR_1.01/Asymp_var.R")
 
 load("Examples/VAR_1.01/Results/dat_matices.Rdata")
 
-
-add_legend <- function(...) {
-  opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
-    mar=c(0, 0, 0, 0), new=TRUE)
-  on.exit(par(opar))
-  plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
-  legend(...)
-}
-
 truth <- true.sig.gen(p = p, omega = omega, phi = phi)
 
 nloops = length(subsize)
@@ -361,11 +352,11 @@ for(i in 1:B){
   chart = chart + (cover[[i]]$count_mat)/B
   time = time + log(cover[[i]]$Time)/(log(10)*B)
   for(j in 1:length(subsize)){
-    time_track_bm[i,j] = cover[[i]]$Time[j,1]
-    time_track_ise[i,j] = cover[[i]]$Time[j,2]
-    time_track_cc[i,j] = cover[[i]]$Time[j,3]
-    time_track_sve[i,j] = cover[[i]]$Time[j,4]
-    time_track_mls[i,j] = cover[[i]]$Time[j,5]
+    time_track_bm[i,j] = log(cover[[i]]$Time[j,1])
+    time_track_ise[i,j] = log(cover[[i]]$Time[j,2])
+    time_track_cc[i,j] = log(cover[[i]]$Time[j,3])
+    time_track_sve[i,j] = log(cover[[i]]$Time[j,4])
+    time_track_mls[i,j] = log(cover[[i]]$Time[j,5])
   }
 }
 
@@ -392,7 +383,7 @@ add_legend <- function(...) {
 pdf("Plots/VAR_comptime.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 plot(subsize, colMeans(time_track_bm), type = "l", xlab = "Chain length",
-  ylim = c(0, 80), log = 'x', ylab = "Computational Time (sec)")
+  ylim = c(-6, 7), log = 'x', ylab = "Log Computational Time (sec)")
 segments(x0 = subsize, y0 = colMeans(time_track_bm) - 1.96*se_time_bm, 
   y1 = colMeans(time_track_bm) + 1.96*se_time_bm)
 
@@ -419,8 +410,9 @@ dev.off()
 
 
 
+
 ############################################################
-##Computational Time Plot#################################### 
+## Truncation Time Plot #################################### 
 
 source("Examples/VAR_1.01/VAR_func.R")
 source("Examples/VAR_1.01/Asymp_var.R")
@@ -440,45 +432,31 @@ add_legend <- function(...) {
 }
 
 Trunc_ise = matrix(0, nrow = B, ncol = nloops)
-Trunc_cc = matrix(0, nrow = B, ncol = nloops)
 
 for(i in 1:B){
   for(j in 1:nloops){
     Trunc_ise[i,j] = (cover[[i]]$Truncation[j,1])
-    Trunc_cc[i,j] = log(subsize[j])
-    #Trunc_ise[i,j] = subsize[j]*(cover[[i]]$Truncation[j,1])*(p*p)
-    #Trunc_cc[i,j] = subsize[j]*log(subsize[j])*p
   }
 }
 
-Trunc_ise = cbind(rep(0, B), Trunc_ise)
-subsize = c(1, subsize)
+Trunc_ise = cbind(log(Trunc_ise))
+l.subsize = log(subsize)
 
 se_ise <- apply(Trunc_ise, 2, sd)/sqrt(B)
-se_cc <- apply(Trunc_cc, 2, sd)/sqrt(B)
 
 
 pdf("Plots/VAR_theoretical_complexity.pdf", height = 6, width = 6)
 par(mar = c(5.1, 4.8, 4.1, 2.1))
 
-curve(log(x), from = 1, to = 5e5, lty = 2, col = "black", xlab = "Chain length",
-     ylim = c(0, 130), xlim = c(0, 5e5), ylab = TeX(r'($t_{n}$)'), lwd = 2)
-
-lines(subsize, colMeans(Trunc_ise), type = "l", col = "red")
-segments(x0 = subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
+plot(l.subsize, colMeans(Trunc_ise), type = "b", col = "red",
+ pch = 16, xlab = TeX(r'($\log (n)$)'), ylab = TeX(r'(Log of $t_{n}$)'))
+segments(x0 = l.subsize, y0 = colMeans(Trunc_ise) - 1.96*se_ise, 
   y1 = colMeans(Trunc_ise) + 1.96*se_ise, col = "red")
 
 
-#lines(subsize, colMeans(Trunc_cc), type = "l", xlab = "Chain length",
-#   ylab = "Theoretical Time/(n d)", col = "purple")
-#segments(x0 = subsize, y0 = colMeans(Trunc_cc) - 1.96*se_cc, 
-#  y1 = colMeans(Trunc_cc) + 1.96*se_cc, col = "purple")
-
-legend("topleft", bty = "n",legend = c(TeX(r'($t_{n}$ (mISE))'), TeX(r'($\log [n]$)')), 
-  col = c("red", "black"), lty = c(1, 2), lwd = c(1, 2), cex= 1.2)
-
-
 dev.off()
+
+
 
 #################################################
 rm()
@@ -502,11 +480,11 @@ mls_time = matrix(0, nrow = repet, ncol = length(N))
 
 
 for(i in 1:repet){
-  bm_time[i,] = as.numeric(Table[[i]][[2]][[1]])
-  ise_time[i,] = as.numeric(Table[[i]][[2]][[2]])
-  sve_time[i,] = as.numeric(Table[[i]][[2]][[3]])
-  cc_time[i,] = as.numeric(Table[[i]][[2]][[4]])
-  mls_time[i,] = as.numeric(Table[[i]][[2]][[5]])
+  bm_time[i,] = log(as.numeric(Table[[i]][[2]][[1]]))
+  ise_time[i,] = log(as.numeric(Table[[i]][[2]][[2]]))
+  sve_time[i,] = log(as.numeric(Table[[i]][[2]][[3]]))
+  cc_time[i,] = log(as.numeric(Table[[i]][[2]][[4]]))
+  mls_time[i,] = log(as.numeric(Table[[i]][[2]][[5]]))
 }
 
 se_time_bm <- apply(bm_time, 2, sd)/sqrt(repet)
@@ -520,8 +498,8 @@ se_time_mls <- apply(mls_time, 2, sd)/sqrt(repet)
 
 pdf("Plots/Calcium_spike_comptime.pdf", height = 6, width = 6)
 par(mfrow = c(1,1))
-plot(N, colMeans(bm_time),col = "black", xlab = "Chain Length", ylab = "Computational time (sec)", 
-  ylim = c(0, 300), log = 'x', type = "l")
+plot(N, colMeans(bm_time),col = "black", xlab = "Chain Length", ylab = "Log Computational time (sec)", 
+  ylim = c(-10, 10), log = 'x', type = "l")
 segments(x0 = N, y0 = colMeans(bm_time) - 1.96*se_time_bm, 
   y1 = colMeans(bm_time) + 1.96*se_time_bm)
 
